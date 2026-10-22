@@ -1,0 +1,24 @@
+name: Application checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: python -m pip install -r requirements.txt
+      - run: python -m unittest test_app test_highlights test_settings
+      - run: node test_previews.cjs
+      - name: Check release tag matches version stamp
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: pwsh
+        run: |
+          $releaseVersion = (Get-Content VERSION -Raw).Trim()
+          if ($env:GITHUB_REF_NAME -ne "v$releaseVersion") { throw 'Release tag must match VERSION.' }
