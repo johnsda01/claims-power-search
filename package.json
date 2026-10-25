@@ -11,7 +11,8 @@
   "dependencies": {
     "idb-keyval": "^6.2.1",
     "mammoth": "^1.8.0",
-    "pdfjs-dist": "^4.8.69"
+    "pdfjs-dist": "^4.8.69",
+    "tesseract.js": "^5.1.1"
   },
   "devDependencies": {
     "vite": "^5.4.10"

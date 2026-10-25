@@ -81,10 +81,9 @@ function renderFiles() {
     let status = 'Not processed';
     if (ready) {
       if (doc.pages.some((p) => p.method === 'Needs OCR')) status = 'Some pages need OCR';
-      else if (doc.pages.some((p) => p.method === 'Windows OCR')) status = 'OCR used';
+      else if (doc.pages.some((p) => p.method === 'Browser OCR')) status = 'OCR used';
       else status = 'Ready';
     }
-    if (status === 'Review OCR') status = 'OCR used';
     const row = document.createElement('label');
     row.className = 'file-row';
     row.innerHTML = `<input type="checkbox" ${state.selected.has(f.id) ? 'checked' : ''} aria-label="Select ${esc(f.name)}"><span class="file-type">${esc(f.name.split('.').pop().toUpperCase())}</span><span class="file-info"><div class="file-name" title="${esc(f.name)}">${esc(f.name)}</div><div class="file-detail">${f.size < 1048576 ? Math.ceil(f.size / 1024) + ' KB' : (f.size / 1048576).toFixed(1) + ' MB'}${doc && ready ? ' · ' + doc.pages.length + (f.name.toLowerCase().endsWith('.pdf') ? ' pages' : ' text section') : ''}</div></span><span title="${status === 'OCR used' ? 'Scanned pages were converted to searchable text. This is not an error or a required review step.' : esc(status)}" class="badge ${status === 'Ready' ? 'ready' : status === 'OCR used' ? 'ocr' : status === 'Some pages need OCR' ? 'review' : ''}">${esc(status)}</span>`;
@@ -212,11 +211,11 @@ async function processSelected() {
       if (reuse) {
         $('status').textContent = `${file.name} · Text copy is current.`;
       } else {
-        const { pages } = await extract(file.file, (msg) => ($('status').textContent = `${file.name} · ${msg}`));
+        const { pages } = await extract(file.file, (msg) => ($('status').textContent = `${file.name} · ${msg}`), useOcr);
         if ((await sha256(file.file)) !== signature) throw new Error('File changed while processing. Process it again.');
         if (!pages.some((p) => p.text.trim())) throw new Error('No readable text found. Enable OCR for scanned PDFs.');
         for (const p of pages) {
-          if (p.method === 'Windows OCR')
+          if (p.method === 'Browser OCR')
             warnings.push(`${file.name}: Page ${p.page}: OCR text; verify against the original.`);
           else if (p.method === 'Needs OCR')
             warnings.push(`${file.name}: Page ${p.page}: Little or no readable text; enable OCR.`);
@@ -241,7 +240,7 @@ async function processSelected() {
       const missingText = doc.pages.some((p) => p.method === 'Needs OCR');
       if (missingText)
         warnings.push(`${file.name}: Some pages have little or no text. Enable OCR and process again.`);
-      else if (doc.pages.some((p) => p.method === 'Windows OCR'))
+      else if (doc.pages.some((p) => p.method === 'Browser OCR'))
         warnings.push(`${file.name}: OCR used. Check wording you copy against the original.`);
     } catch (e) {
       errors.push(`${file.name}: ${e.message}`);
@@ -260,10 +259,7 @@ async function processSelected() {
   $('status').textContent = state.cancel
     ? 'Stopped after the current file.'
     : `Processing complete. ${total} file(s) checked.`;
-  const issues = [
-    ...errors,
-    ...warnings.map((w) => w.replace('OCR or page review needed.', 'OCR used. Check wording you copy against the original.')),
-  ];
+  const issues = [...errors, ...warnings];
   $('issues').innerHTML = issues.length
     ? `<details ${errors.length ? 'open' : ''}><summary>${errors.length} error(s) · ${warnings.length} processing note(s)</summary>${issues.map((e) => '<p>' + esc(e) + '</p>').join('')}</details>`
     : '';
@@ -405,7 +401,9 @@ async function updateOriginalHighlight(focus) {
     const bytes = await getPdfBytes(current.id);
     if (!bytes) throw new Error('PDF unavailable');
     const pdf = await getDocument(bytes);
-    const { words } = await pageWords(pdf, state.originalPreviewPage);
+    const ocrPage = state.documents[current.id]?.pages.find((p) => p.page === state.originalPreviewPage);
+    const ocrWords = ocrPage?.method === 'Browser OCR' ? ocrPage.words : null;
+    const { words } = await pageWords(pdf, state.originalPreviewPage, ocrWords);
     pdf.destroy();
     const result = locate(words, segments, current.terms, state.previewMode !== 'full');
     if (request !== state.highlightRequest) return;

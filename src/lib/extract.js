@@ -6,6 +6,7 @@
 import * as pdfjsLib from 'pdfjs-dist/build/pdf.mjs';
 import workerUrl from 'pdfjs-dist/build/pdf.worker.mjs?url';
 import mammoth from 'mammoth/mammoth.browser.js';
+import { createWorker } from 'tesseract.js';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl;
 
@@ -40,25 +41,72 @@ async function decodeBytes(bytes) {
   }
 }
 
-async function extractPdf(file, progress) {
+async function extractPdf(file, progress, useOcr) {
   const buffer = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({ data: buffer, useSystemFonts: true }).promise;
   const pages = [];
-  for (let i = 1; i <= pdf.numPages; i++) {
-    progress(`Extracting page ${i} of ${pdf.numPages}…`);
-    const page = await pdf.getPage(i);
-    const content = await page.getTextContent();
-    const text = content.items
-      .map((item) => item.str)
-      .join('')
-      .replace(/\u00ad/g, '')
-      .trim();
-    let method = 'PDF text';
-    if (text.replace(/\W/g, '').length < 35) method = 'Needs OCR';
-    pages.push({ page: i, text, method });
-    page.cleanup();
+  let ocrWorker = null;
+  try {
+    for (let i = 1; i <= pdf.numPages; i++) {
+      progress(`Extracting page ${i} of ${pdf.numPages}…`);
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      const text = content.items
+        .map((item) => item.str)
+        .join('')
+        .replace(/\u00ad/g, '')
+        .trim();
+      if (text.replace(/\W/g, '').length >= 35) {
+        pages.push({ page: i, text, method: 'PDF text' });
+        page.cleanup();
+        continue;
+      }
+      if (!useOcr) {
+        pages.push({ page: i, text, method: 'Needs OCR' });
+        page.cleanup();
+        continue;
+      }
+      progress(`Page ${i}: reading with OCR…`);
+      if (!ocrWorker) {
+        ocrWorker = await createWorker('eng');
+      }
+      const viewport0 = page.getViewport({ scale: 1 });
+      const scale = Math.min(2400 / Math.max(viewport0.width, viewport0.height), 4);
+      const viewport = page.getViewport({ scale });
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.ceil(viewport.width);
+      canvas.height = Math.ceil(viewport.height);
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      await page.render({ canvasContext: ctx, viewport }).promise;
+      page.cleanup();
+      const ocr = await ocrWorker.recognize(canvas);
+      const words = [];
+      const pw = canvas.width;
+      const ph = canvas.height;
+      for (const w of ocr.data.words || []) {
+        words.push({
+          text: w.text,
+          x: w.bbox.x0 / pw,
+          y: w.bbox.y0 / ph,
+          w: (w.bbox.x1 - w.bbox.x0) / pw,
+          h: (w.bbox.y1 - w.bbox.y0) / ph,
+        });
+      }
+      const ocrText = (ocr.data.text || '').trim();
+      pages.push({
+        page: i,
+        text: ocrText,
+        method: 'Browser OCR',
+        words,
+        width: pw,
+        height: ph,
+      });
+    }
+  } finally {
+    if (ocrWorker) await ocrWorker.terminate();
   }
-  // Browser OCR is not available in this build; scanned pages stay flagged.
   return { pages, pdf };
 }
 
@@ -74,11 +122,11 @@ async function extractText(file) {
   return [{ page: 1, text, method: 'Text file; page numbers unavailable' }];
 }
 
-export async function extract(file, progress) {
+export async function extract(file, progress, useOcr = false) {
   const lower = file.name.toLowerCase();
   const ext = lower.slice(lower.lastIndexOf('.'));
   if (ext === '.pdf') {
-    const { pages, pdf } = await extractPdf(file, progress);
+    const { pages, pdf } = await extractPdf(file, progress, useOcr);
     return { pages, pdfHandle: pdf };
   }
   if (ext === '.docx') return { pages: await extractDocx(file), pdfHandle: null };
@@ -114,7 +162,12 @@ export async function renderPageImage(pdfHandle, pageNumber, maxDim = 2200) {
 }
 
 // Word-level geometry for highlight overlays, in 0..1 page coordinates.
-export async function pageWords(pdfHandle, pageNumber) {
+// For PDF text pages, geometry comes from the live text layer. For OCR'd
+// pages (no text layer), cached words captured during OCR are returned.
+export async function pageWords(pdfHandle, pageNumber, ocrWords = null) {
+  if (ocrWords && ocrWords.length) {
+    return { words: ocrWords, method: 'Browser OCR' };
+  }
   const page = await pdfHandle.getPage(pageNumber);
   const viewport = page.getViewport({ scale: 1 });
   const width = viewport.width;

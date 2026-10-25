@@ -6,7 +6,7 @@ export default defineConfig({
     host: '127.0.0.1',
   },
   optimizeDeps: {
-    exclude: ['pdfjs-dist'],
+    exclude: ['pdfjs-dist', 'tesseract.js'],
   },
   build: {
     target: 'es2020',
