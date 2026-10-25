@@ -18,7 +18,7 @@ import {
 } from './lib/library.js';
 import { searchDocuments } from './lib/search.js';
 
-const VERSION = '0.1.0-beta.1';
+const VERSION = '0.2.0-beta.1';
 
 const $ = (id) => document.getElementById(id);
 const state = {

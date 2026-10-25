@@ -121,7 +121,7 @@ const tests = [
     'highlight locate: normalized OCR words and wrapped lines',
     () => {
       const words = [
-        { text: '\ufb01ood,', x: 0.1, y: 0, w: 0.2, h: 0.02 },
+        { text: '\ufb02ood,', x: 0.1, y: 0, w: 0.2, h: 0.02 },
         { text: 'surface', x: 0.1, y: 0.03, w: 0.2, h: 0.02 },
         { text: 'water', x: 0.1, y: 0.06, w: 0.2, h: 0.02 },
       ];
@@ -131,7 +131,6 @@ const tests = [
   [
     'highlight locate: unmatched wording returns no guessed position',
     () => {
-      assert.equal(locate([{ text: 'Fire', x: 0, y: 0, w: 0.1, h: 0.1 }], ['Flood']).boxes, 0) || true;
       assert.deepEqual(locate([{ text: 'Fire', x: 0, y: 0, w: 0.1, h: 0.1 }], ['Flood']).boxes, []);
     },
   ],

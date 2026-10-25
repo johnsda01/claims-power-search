@@ -166,7 +166,7 @@ export function focusedExcerpt(result, chosen = null) {
     if (node.start > last && chunks.length && chunks[chunks.length - 1] !== '…') chunks.push('…');
     chunks.push(part);
     last = node.start + lines.slice(0, count).join('\n').length;
-    (pageSegments[page] || []).push(...part.split('\n'), '…');
+    (pageSegments[page] ||= []).push(...part.split('\n'), '…');
     lastPage = page;
   }
   if (last < documentText.trimEnd().length) chunks.push('…');
