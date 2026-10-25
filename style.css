@@ -12,3 +12,24 @@
 .app-status{display:flex;flex-direction:column;align-items:flex-end;gap:10px}.app-status .version-stamp{margin-left:0}
 .open-note{font-size:10px;color:#9aa7a3}
 #folder:disabled{opacity:.7;cursor:not-allowed}.workflow-panel{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr);padding:0;overflow:hidden}.workflow-instructions{grid-column:1/-1;padding:16px 24px;border-bottom:1px solid var(--line);color:var(--ink);font-size:13px;font-weight:600;background:#fff}.workflow-left{min-width:0}.workflow-step{min-width:0}.workflow-left .folder-panel{border-bottom:1px solid var(--line)}.workflow-left .files-panel{border:0}.workflow-left .section-title{padding-bottom:16px}.workflow-left .file-list{min-height:220px}.process-panel{border:0;border-left:1px solid var(--line);border-radius:0;background:#fafafd}.process-panel .section-title{padding-bottom:18px}.process-panel .process{padding-bottom:30px}.process-panel .ocr-callout{background:#fff3e9;border-color:#f0c9a9}.process-panel .process>.primary{width:fit-content;min-width:220px}.save-note{padding:12px 14px;background:#f3f4f6;border:1px solid var(--line);border-radius:8px;color:var(--ink)}.save-note strong{font-size:11px;color:var(--ink)}.save-note p{margin-bottom:0}.rail{background:#202126}.section-title .step{background:#c85a0a;border-color:#f0bd94;box-shadow:0 0 0 4px #fff3e9}.secondary{background:#fff;color:#344352;border-color:#d7dbe0}.primary{background:#c85a0a}@media(max-width:760px){.workflow-panel{display:block}.workflow-instructions{padding:14px 16px}.process-panel{border-left:0;border-top:1px solid var(--line);border-radius:0 0 14px 14px}.workflow-left .folder-panel{border-bottom:1px solid var(--line)}.workflow-left .file-list{min-height:160px}.process-panel .process>.primary{width:100%}}
+.roof-heading,.structure-heading{padding-top:17px;border-top:1px solid #edf1f0;margin-top:20px}
+body{font-size:15px}
+.topic{font-size:13px;padding:9px 12px}
+.topic input{height:14px;width:14px}
+.topic-heading h3{font-size:14px}
+.topic-heading span{font-size:12px}
+.file-name{font-size:14px}
+.file-detail{font-size:12px}
+.file-type{font-size:11px;padding:4px 6px}
+.badge{font-size:11px;padding:4px 9px}
+.search-options{font-size:12px}
+.search-options select{font-size:12px;padding:5px}
+.search-row input{font-size:15px}
+.context-note{font-size:12px}
+.result-meta{font-size:12px}
+.tags{font-size:12px}
+.excerpt-label{font-size:12px}
+#status{font-size:13px}
+.save-note,.save-note p{font-size:12px}
+footer{font-size:13px}
+footer span{font-size:12px}

@@ -2,7 +2,7 @@
 // picked with the File System Access API, extracted in the browser with PDF.js
 // and mammoth, and stored in IndexedDB. Settings live in localStorage.
 
-import { TOPIC_CATALOG, COMMON, WATER } from './lib/topics.js';
+import { TOPIC_CATALOG, COMMON, WATER, ROOF, STRUCTURE } from './lib/topics.js';
 import { esc, highlight, excerpt, focusedExcerpt, copyText, normalized } from './lib/text.js';
 import { locate } from './lib/highlights.js';
 import { extract, sha256, renderPageImage, pageWords, isSupported, getDocument } from './lib/extract.js';
@@ -109,6 +109,8 @@ function renderTopics() {
   for (const [target, ids] of [
     ['commonTopics', COMMON],
     ['waterTopics', WATER],
+    ['roofTopics', ROOF],
+    ['structureTopics', STRUCTURE],
   ]) {
     $(target).replaceChildren();
     for (const id of ids) {
@@ -520,6 +522,14 @@ $('commonAll').addEventListener('click', () => {
 });
 $('waterAll').addEventListener('click', () => {
   WATER.forEach((id) => state.topics.add(id));
+  renderTopics();
+});
+$('roofAll').addEventListener('click', () => {
+  ROOF.forEach((id) => state.topics.add(id));
+  renderTopics();
+});
+$('structureAll').addEventListener('click', () => {
+  STRUCTURE.forEach((id) => state.topics.add(id));
   renderTopics();
 });
 
