@@ -16,3 +16,4 @@ dist/
 *.build/
 *.dist/
 *.onefile-build/
+.env
