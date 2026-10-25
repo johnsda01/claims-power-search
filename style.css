@@ -10,3 +10,5 @@
 .original-page-choice{display:flex;align-items:center;gap:10px;font-size:11px;color:#42665d;margin:0 3px 12px}.original-page-choice select{flex:1;min-width:0;border:1px solid var(--line);padding:8px;border-radius:5px;color:var(--ink);background:white}
 
 .app-status{display:flex;flex-direction:column;align-items:flex-end;gap:10px}.app-status .version-stamp{margin-left:0}
+.open-note{font-size:10px;color:#9aa7a3}
+#folder:disabled{opacity:.7;cursor:not-allowed}

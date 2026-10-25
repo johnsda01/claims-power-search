@@ -1,0 +1,152 @@
+// Browser document extraction. Replaces the Python pypdf/python-docx/pypdfium2
+// pipeline: PDF.js pulls per-page text and rasterizes pages, mammoth reads
+// Word .docx files, and text/markdown files decode directly. The output shape
+// matches the original { page, text, method } pages list.
+
+import * as pdfjsLib from 'pdfjs-dist/build/pdf.mjs';
+import workerUrl from 'pdfjs-dist/build/pdf.worker.mjs?url';
+import mammoth from 'mammoth/mammoth.browser.js';
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl;
+
+const SUPPORTED = new Set(['.pdf', '.docx', '.txt', '.md']);
+
+export function supportedExtensions() {
+  return [...SUPPORTED];
+}
+
+export function isSupported(name) {
+  const lower = name.toLowerCase();
+  return (
+    SUPPORTED.has(lower.slice(lower.lastIndexOf('.'))) &&
+    !name.startsWith('~$') &&
+    name.toLowerCase() !== 'agents.md'
+  );
+}
+
+async function fileSignature(file) {
+  const buf = await file.arrayBuffer();
+  const hashBuf = await crypto.subtle.digest('SHA-256', buf);
+  return [...new Uint8Array(hashBuf)].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function decodeBytes(bytes) {
+  try {
+    return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+  } catch {
+    if (bytes[0] === 0xff && bytes[1] === 0xfe) return new TextDecoder('utf-16le').decode(bytes);
+    if (bytes[0] === 0xfe && bytes[1] === 0xff) return new TextDecoder('utf-16be').decode(bytes);
+    return new TextDecoder('windows-1252').decode(bytes);
+  }
+}
+
+async function extractPdf(file, progress) {
+  const buffer = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: buffer, useSystemFonts: true }).promise;
+  const pages = [];
+  for (let i = 1; i <= pdf.numPages; i++) {
+    progress(`Extracting page ${i} of ${pdf.numPages}…`);
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    const text = content.items
+      .map((item) => item.str)
+      .join('')
+      .replace(/\u00ad/g, '')
+      .trim();
+    let method = 'PDF text';
+    if (text.replace(/\W/g, '').length < 35) method = 'Needs OCR';
+    pages.push({ page: i, text, method });
+    page.cleanup();
+  }
+  // Browser OCR is not available in this build; scanned pages stay flagged.
+  return { pages, pdf };
+}
+
+async function extractDocx(file) {
+  const arrayBuffer = await file.arrayBuffer();
+  const result = await mammoth.extractRawText({ arrayBuffer });
+  return [{ page: 1, text: result.value, method: 'Word text; page numbers unavailable' }];
+}
+
+async function extractText(file) {
+  const bytes = await file.arrayBuffer();
+  const text = await decodeBytes(new Uint8Array(bytes));
+  return [{ page: 1, text, method: 'Text file; page numbers unavailable' }];
+}
+
+export async function extract(file, progress) {
+  const lower = file.name.toLowerCase();
+  const ext = lower.slice(lower.lastIndexOf('.'));
+  if (ext === '.pdf') {
+    const { pages, pdf } = await extractPdf(file, progress);
+    return { pages, pdfHandle: pdf };
+  }
+  if (ext === '.docx') return { pages: await extractDocx(file), pdfHandle: null };
+  if (ext === '.txt' || ext === '.md') return { pages: await extractText(file), pdfHandle: null };
+  throw new Error('Unsupported file type.');
+}
+
+export async function sha256(file) {
+  return fileSignature(file);
+}
+
+// Render a PDF page to an image data URL for the original-page preview.
+// Re-open a PDF.js document handle from stored bytes (for page images/words).
+export async function getDocument(bytes) {
+  const pdfjs = await import('pdfjs-dist/build/pdf.mjs');
+  return pdfjs.getDocument({ data: bytes, useSystemFonts: true }).promise;
+}
+
+export async function renderPageImage(pdfHandle, pageNumber, maxDim = 2200) {
+  const page = await pdfHandle.getPage(pageNumber);
+  const viewport0 = page.getViewport({ scale: 1 });
+  const scale = Math.min(maxDim / Math.max(viewport0.width, viewport0.height), 4);
+  const viewport = page.getViewport({ scale });
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.ceil(viewport.width);
+  canvas.height = Math.ceil(viewport.height);
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  await page.render({ canvasContext: ctx, viewport }).promise;
+  page.cleanup();
+  return canvas.toDataURL('image/png');
+}
+
+// Word-level geometry for highlight overlays, in 0..1 page coordinates.
+export async function pageWords(pdfHandle, pageNumber) {
+  const page = await pdfHandle.getPage(pageNumber);
+  const viewport = page.getViewport({ scale: 1 });
+  const width = viewport.width;
+  const height = viewport.height;
+  const content = await page.getTextContent();
+  const words = [];
+  for (const item of content.items) {
+    if (!item.str || !item.str.trim()) continue;
+    const transform = item.transform;
+    const x = transform[4];
+    const y = height - transform[5];
+    const fontHeight = Math.hypot(transform[2], transform[3]) || item.height || 10;
+    const w = item.width || 0;
+    // Split into words on whitespace, preserving geometry per token.
+    const tokens = item.str.split(/(\s+)/).filter((s) => s.length);
+    if (tokens.length <= 1) {
+      words.push({ text: item.str, x: x / width, y: y / height, w: w / width, h: fontHeight / height });
+    } else {
+      // Approximate even distribution of tokens across the item width.
+      const charWidth = w / item.str.length || 0;
+      let cursorX = x;
+      for (const token of tokens) {
+        if (/^\s+$/.test(token)) {
+          cursorX += token.length * charWidth;
+          continue;
+        }
+        const tw = token.length * charWidth;
+        words.push({ text: token, x: cursorX / width, y: y / height, w: tw / width, h: fontHeight / height });
+        cursorX += tw;
+      }
+    }
+  }
+  page.cleanup();
+  return { words, method: 'PDF text' };
+}
