@@ -239,10 +239,13 @@ async function processSelected() {
         old.sha256 === signature &&
         old.size === file.size &&
         (!useOcr || !old.pages.some((p) => p.method === 'Needs OCR'));
+      let pages;
       if (reuse) {
+        pages = old.pages;
         $('status').textContent = `${file.name} · Text copy is current.`;
       } else {
-        const { pages } = await extract(file.file, (msg) => ($('status').textContent = `${file.name} · ${msg}`), useOcr);
+        const extracted = await extract(file.file, (msg) => ($('status').textContent = `${file.name} · ${msg}`), useOcr);
+        pages = extracted.pages;
         if ((await sha256(file.file)) !== signature) throw new Error('File changed while processing. Process it again.');
         if (!pages.some((p) => p.text.trim())) throw new Error('No readable text found. Enable OCR for scanned PDFs.');
         for (const p of pages) {
@@ -266,12 +269,12 @@ async function processSelected() {
             // PDF previews unavailable for this file; non-fatal.
           }
         }
-        const copyName = await writeSearchableCopy(file.name, pages);
-        if (copyName) {
-          $('status').textContent = `${file.name} · Text copy saved as ${copyName}`;
-        } else if (state.folderHandle) {
-          $('status').textContent = `${file.name} · Could not write .searchable.txt to folder (saved in browser only).`;
-        }
+      }
+      const copyName = await writeSearchableCopy(file.name, pages);
+      if (copyName) {
+        $('status').textContent = `${file.name} · Text copy saved as ${copyName}`;
+      } else if (state.folderHandle) {
+        $('status').textContent = `${file.name} · Could not write .searchable.txt to folder (saved in browser only).`;
       }
       const doc = documents[file.id];
       const missingText = doc.pages.some((p) => p.method === 'Needs OCR');
