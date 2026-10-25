@@ -12,17 +12,48 @@
 <body>
 <aside class="rail"><div class="brand-mark">CPS</div><span class="rail-word">CLAIMS<br>POWER<br>SEARCH</span><div class="rail-line"></div><span class="rail-bottom">LOCAL<br>LIBRARY</span></aside>
 <main>
-<header><div><div class="eyebrow">POLICY & ENDORSEMENT LIBRARY</div><h1>Find the language.<br><span>Keep the context.</span></h1><p>Turn your documents into searchable text, then check the original wording.</p></div><div class="app-status"><div class="local"><i></i> Files stay in this browser</div><strong id="appVersion" class="version-stamp">Version loading…</strong></div></header>
+<header><div><div class="eyebrow">POLICY & ENDORSEMENT LIBRARY</div><h1>Find the language.<br><span>Keep the context.</span></h1><p>Turn your documents into searchable text, then check the original wording.</p></div><div class="app-status"><div class="local"><i></i> Files stay on this PC</div><strong id="appVersion" class="version-stamp">Version loading…</strong></div></header>
 <div id="notice" role="alert" hidden></div>
-<section class="panel folder-panel"><div class="section-title"><span class="step">01</span><h2>Choose your documents</h2><span class="subtle" id="fileCount"></span></div>
-<div class="folder-row"><label class="sr-only" for="folder">Document folder</label><input id="folder" placeholder="Pick a folder with the Browse button" disabled><button id="loadFolder" class="secondary" hidden>Load folder</button><button id="browse" class="secondary">Browse…</button></div>
-<div class="workspace"><div class="files"><div class="file-toolbar"><label><input id="selectAll" type="checkbox"> Select all files</label><span id="selectedCount" class="subtle"></span></div><div id="fileList" class="file-list"></div></div>
-<div class="process"><div class="eyebrow">CREATE TEXT COPIES</div><h3>Ready for search</h3><p>PDF, Word, and text files. Each PDF page keeps its source reference.</p><label class="ocr-option"><input type="checkbox" id="ocr" checked><span>Read scanned PDFs with OCR<small>Scanned pages are read in your browser with Tesseract.js. OCR wording should be checked against the original.</small></span></label><button id="process" class="primary">Process selected files <span aria-hidden="true">→</span></button><button id="stop" class="secondary" hidden>Stop after current file</button><progress id="progress" value="0" max="1" hidden></progress><div id="status" role="status" aria-live="polite">Choose files, then click Process.</div><div id="issues"></div><details class="save-note"><summary>Where are text copies saved?</summary><p id="output"></p></details></div></div></section>
-<section class="panel search-panel"><div class="section-title"><span class="step">02</span><h2>Look up a claim issue</h2><button id="clearTopics" class="text-button">Clear topics</button></div>
-<form id="searchForm"><div class="search-row"><label class="sr-only" for="query">What are you looking for?</label><input id="query" placeholder="What are you looking for? e.g. food loss, roof leak, matching"><button class="primary" id="search">Search language <span aria-hidden="true">↗</span></button></div><div class="search-options"><label for="mode">Typed search:</label><select id="mode"><option value="any">Any word</option><option value="all">All words on the page</option><option value="phrase">Exact phrase</option></select><span>Search words narrow the checked topics. Topics match any checked issue.</span></div></form>
-<div class="topic-heading"><h3>Common coverage issues</h3><span>10 starting points · <button id="commonAll" class="text-button">Select all 10</button></span></div><div id="commonTopics" class="topics"></div>
-<div class="topic-heading water-heading"><h3>Water damage types</h3><button id="waterAll" class="text-button">Select all water types</button></div><div id="waterTopics" class="topics"></div>
-<div class="context-note"><span aria-hidden="true">ⓘ</span> Results include coverage, exclusions, limits, and exceptions. These lookups do not determine approval or denial.</div></section>
+
+<section class="panel folder-panel">
+  <div class="section-title"><span class="step">01</span><h2>Choose your documents folder</h2><span class="subtle" id="fileCount"></span></div>
+  <div class="folder-row"><label class="sr-only" for="folder">Document folder</label><input id="folder" placeholder="Pick a folder with the Browse button" disabled><button id="loadFolder" class="secondary" hidden>Load folder</button><button id="browse" class="secondary">Browse…</button></div>
+  <p class="folder-help">A folder of policy PDFs, Word (.docx), or text files. Nothing is uploaded — files stay on this PC.</p>
+</section>
+
+<section class="panel files-panel">
+  <div class="section-title"><span class="step">02</span><h2>Select individual files</h2><span class="subtle" id="selectedCount"></span></div>
+  <div class="file-toolbar"><label><input id="selectAll" type="checkbox"> Select all files</label><span class="subtle" id="fileTotal"></span></div>
+  <div id="fileList" class="file-list"></div>
+</section>
+
+<section class="panel process-panel">
+  <div class="section-title"><span class="step">03</span><h2>Ready for search</h2></div>
+  <div class="process">
+    <div class="eyebrow">CONVERT TO SEARCHABLE TEXT</div>
+    <h3>Make your files searchable</h3>
+    <p>PDF, Word, and text files are converted into a text copy this app can search. Each PDF page keeps its source reference so you can jump back to the original.</p>
+    <div class="ocr-callout">
+      <label class="ocr-option"><input type="checkbox" id="ocr" checked><span>Read scanned PDFs with OCR<small>Scanned pages (image-only PDFs) are read in your browser with Tesseract.js. OCR wording should be checked against the original.</small></span></label>
+      <p class="local-note">Converted text files are saved <strong>on your PC, in the same folder as the originals</strong>, never uploaded to the cloud. Each converted file is clearly labeled (for example <code>policy.searchable.txt</code> next to <code>policy.pdf</code>). If your browser does not allow writing to the folder, copies are kept in this browser instead.</p>
+    </div>
+    <button id="process" class="primary">Process selected files <span aria-hidden="true">→</span></button>
+    <button id="stop" class="secondary" hidden>Stop after current file</button>
+    <progress id="progress" value="0" max="1" hidden></progress>
+    <div id="status" role="status" aria-live="polite">Choose a folder, select files, then click Process.</div>
+    <div id="issues"></div>
+    <details class="save-note"><summary>Where are text copies saved?</summary><p id="output"></p></details>
+  </div>
+</section>
+
+<section class="panel search-panel">
+  <div class="section-title"><span class="step">04</span><h2>Look up a claim issue</h2><button id="clearTopics" class="text-button">Clear topics</button></div>
+  <form id="searchForm"><div class="search-row"><label class="sr-only" for="query">What are you looking for?</label><input id="query" placeholder="What are you looking for? e.g. food loss, roof leak, matching"><button class="primary" id="search">Search language <span aria-hidden="true">↗</span></button></div><div class="search-options"><label for="mode">Typed search:</label><select id="mode"><option value="any">Any word</option><option value="all">All words on the page</option><option value="phrase">Exact phrase</option></select><span>Search words narrow the checked topics. Topics match any checked issue.</span></div></form>
+  <div class="topic-heading"><h3>Common coverage issues</h3><span>10 starting points · <button id="commonAll" class="text-button">Select all 10</button></span></div><div id="commonTopics" class="topics"></div>
+  <div class="topic-heading water-heading"><h3>Water damage types</h3><button id="waterAll" class="text-button">Select all water types</button></div><div id="waterTopics" class="topics"></div>
+  <div class="context-note"><span aria-hidden="true">ⓘ</span> Results include coverage, exclusions, limits, and exceptions. These lookups do not determine approval or denial.</div>
+</section>
+
 <section id="resultsSection"><div class="results-heading"><div><div class="eyebrow">SOURCE LANGUAGE</div><h2 id="resultsTitle">Your results will appear here</h2></div><span id="resultMeta" class="subtle"></span></div><div id="searchWarning" role="status"></div><div id="results"><div class="empty"><div class="empty-icon">⌕</div><h3>Start with your policy documents</h3><p>Process your selected files, then type a phrase or check a claim topic.<br>Open any result to see the full page and original file.</p></div></div></section>
 <footer>Claims Power Search<span>Local document search · Check the applicable forms and editions.</span></footer>
 </main>

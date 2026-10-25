@@ -49,7 +49,7 @@ function resetResults() {
   $('resultMeta').textContent = '';
   $('searchWarning').textContent = '';
   $('results').innerHTML =
-    '<div class="empty"><div class="empty-icon">⌕</div><h3>Search your selected documents</h3><p>Type a phrase or check a topic to find source language.</p></div>';
+    '<div class="empty"><div class="empty-icon">⌕</div><h3>Search your selected documents</h3><p>Type a phrase or check a topic in step 04 to find source language.</p></div>';
 }
 
 function updateSelection() {
@@ -73,7 +73,13 @@ function setBusy(value) {
 function renderFiles() {
   $('folder').value = state.folderName;
   $('fileCount').textContent = `${state.files.length} supported file${state.files.length === 1 ? '' : 's'}`;
-  $('output').textContent = `Saved in your browser (IndexedDB) for "${state.folderName}".`;
+  $('fileTotal').textContent = `${state.files.length} file${state.files.length === 1 ? '' : 's'} in folder`;
+  const writeSupported = !!state.folderHandle && typeof state.folderHandle.removeEntry !== 'undefined';
+  $('output').textContent = writeSupported
+    ? `Converted text saved in the same folder as the originals, labeled .searchable.txt — for "${state.folderName}".`
+    : state.folderName
+      ? `This browser cannot write back to the source folder. Text copies are kept in this browser for "${state.folderName}".`
+      : 'Pick a folder to see where text copies are saved.';
   $('fileList').replaceChildren();
   for (const f of state.files) {
     const doc = state.documents[f.id];
@@ -147,6 +153,31 @@ async function pickFolder() {
   });
 }
 
+// Write a .searchable.txt copy of a processed file back to the source folder,
+// next to the original. Returns a short status string or null if it couldn't.
+async function writeSearchableCopy(fileName, pages) {
+  if (!state.folderHandle) return null;
+  const base = fileName.replace(/\.[^.]+$/, '');
+  const outName = `${base}.searchable.txt`;
+  const text = pages
+    .map((p) => {
+      const head = p.page > 1 || fileName.toLowerCase().endsWith('.pdf')
+        ? `--- ${fileName} · page ${p.page} (${p.method}) ---\n`
+        : `--- ${fileName} (${p.method}) ---\n`;
+      return head + (p.text || '') + '\n';
+    })
+    .join('\n');
+  try {
+    const writable = await state.folderHandle.getFileHandle(outName, { create: true });
+    const sync = await writable.createWritable();
+    await sync.write(text);
+    await sync.close();
+    return outName;
+  } catch (e) {
+    return null;
+  }
+}
+
 async function readFolder(handle) {
   const files = [];
   if (handle && handle.input) {
@@ -177,7 +208,7 @@ async function readFolder(handle) {
   state.documents = await loadIndex(state.folderName);
   renderFiles();
   resetResults();
-  $('status').textContent = 'Folder loaded. Ready text copies can be searched now.';
+  $('status').textContent = 'Folder loaded. Select files in step 02, then Process in step 03.';
   $('issues').textContent = '';
 }
 
@@ -235,6 +266,12 @@ async function processSelected() {
             // PDF previews unavailable for this file; non-fatal.
           }
         }
+        const copyName = await writeSearchableCopy(file.name, pages);
+        if (copyName) {
+          $('status').textContent = `${file.name} · Text copy saved as ${copyName}`;
+        } else if (state.folderHandle) {
+          $('status').textContent = `${file.name} · Could not write .searchable.txt to folder (saved in browser only).`;
+        }
       }
       const doc = documents[file.id];
       const missingText = doc.pages.some((p) => p.method === 'Needs OCR');
@@ -258,7 +295,7 @@ async function processSelected() {
   setBusy(false);
   $('status').textContent = state.cancel
     ? 'Stopped after the current file.'
-    : `Processing complete. ${total} file(s) checked.`;
+    : `Processing complete. ${total} file(s) converted. Ready to search in step 04.`;
   const issues = [...errors, ...warnings];
   $('issues').innerHTML = issues.length
     ? `<details ${errors.length ? 'open' : ''}><summary>${errors.length} error(s) · ${warnings.length} processing note(s)</summary>${issues.map((e) => '<p>' + esc(e) + '</p>').join('')}</details>`
@@ -527,7 +564,7 @@ $('originalPageSelect').addEventListener('change', async (event) => {
     $('mode').value = settings.searchMode;
     renderTopics();
     $('fileList').innerHTML =
-      '<div class="empty"><div class="empty-icon">⌕</div><h3>Pick a folder to begin</h3><p>Click Browse… to choose a folder of policy PDFs, Word documents, or text files.<br>Files never leave your browser.</p></div>';
+      '<div class="empty"><div class="empty-icon">⌕</div><h3>Pick a folder to begin</h3><p>Use Browse… in step 01 to choose a folder of policy PDFs, Word documents, or text files.<br>Files stay on this PC.</p></div>';
     if (warning) notice(warning);
   } catch (e) {
     notice(e.message);
