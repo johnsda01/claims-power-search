@@ -6,7 +6,8 @@
 import * as pdfjsLib from 'pdfjs-dist/build/pdf.mjs';
 import workerUrl from 'pdfjs-dist/build/pdf.worker.mjs?url';
 import mammoth from 'mammoth/mammoth.browser.js';
-import { createWorker } from 'tesseract.js';
+import Tesseract from 'tesseract.js/dist/tesseract.esm.min.js';
+const { createWorker } = Tesseract;
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl;
 
