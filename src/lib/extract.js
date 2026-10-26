@@ -250,5 +250,12 @@ export async function pageWords(pdfHandle, pageNumber, ocrWords = null) {
     }
   }
   page.cleanup();
+  // Sort into reading order (top-to-bottom, left-to-right) with line-band
+  // tolerance, matching how formatPdfText groups items into lines. Without this
+  // the word stream follows raw PDF content-stream order and locate() cannot
+  // match excerpt segments against it, so no highlight boxes are drawn.
+  words.sort(
+    (a, b) => Math.round(a.y * 200) - Math.round(b.y * 200) || a.x - b.x,
+  );
   return { words, method: 'PDF text' };
 }
