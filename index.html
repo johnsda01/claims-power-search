@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Claims Power Search</title>
+  <title>Policy Poser Search</title>
   <!-- Documents are read and stored locally; analytics receives anonymous usage counts only. -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob: https://cloud.umami.is; worker-src 'self' blob:; child-src 'self' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob: ws://127.0.0.1:* ws://localhost:* https://api-gateway.umami.dev; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'">
   <meta name="referrer" content="no-referrer">
   <script defer src="https://cloud.umami.is/script.js" data-website-id="874169b6-1aa8-4094-bf29-d5106bc94156"></script>
   <link rel="stylesheet" href="/style.css">
-  <meta property="og:title" content="Policy Power Search">
+  <meta property="og:title" content="Policy Poser Search">
   <meta property="og:description" content="Search policy and endorsement language in seconds. Files stay on your PC.">
   <meta property="og:image" content="https://policypowersearch.phoenixencore.com/og-image.png">
   <meta property="og:image:width" content="1200">
@@ -22,7 +22,7 @@
 <body>
 <aside class="rail"><div class="brand-mark">CPS</div><span class="rail-word">CLAIMS<br>POWER<br>SEARCH</span><div class="rail-line"></div><span class="rail-bottom">LOCAL<br>LIBRARY</span></aside>
 <main>
-<header><div><div class="eyebrow">POLICY POWER SEARCH</div><h1>Find the language.<br><span>Keep the context.</span></h1><p>Turn your documents into searchable text, then check the original wording.</p></div><div class="app-status"><div class="app-status-top"><div class="local"><i></i> Files stay on this PC</div><a class="feedback-link" href="https://docs.google.com/forms/d/e/1FAIpQLScuiCXgzW1ZJ5z1UQgWRwfROONEq3lK4rJHXthMPGzAdT6KsA/viewform" target="_blank" rel="noopener noreferrer">Send feedback</a></div><strong id="appVersion" class="version-stamp">Version loading…</strong></div></header>
+<header><div><div class="eyebrow">POLICY POSER SEARCH</div><h1>Find the language.<br><span>Keep the context.</span></h1><p>Turn your documents into searchable text, then check the original wording.</p></div><div class="app-status"><div class="app-status-top"><div class="local"><i></i> Files stay on this PC</div><a class="feedback-link" href="https://docs.google.com/forms/d/e/1FAIpQLScuiCXgzW1ZJ5z1UQgWRwfROONEq3lK4rJHXthMPGzAdT6KsA/viewform" target="_blank" rel="noopener noreferrer">Send feedback</a></div><strong id="appVersion" class="version-stamp">Version loading…</strong></div></header>
 <div id="notice" role="alert" hidden></div>
 
 <section class="panel workflow-panel">
@@ -72,7 +72,7 @@
 </section>
 
 <section id="resultsSection"><div class="results-heading"><div><div class="eyebrow">SOURCE LANGUAGE</div><h2 id="resultsTitle">Your results will appear here</h2></div><span id="resultMeta" class="subtle"></span></div><div id="searchWarning" role="status"></div><div id="results"><div class="empty"><div class="empty-icon">⌕</div><h3>Start with your policy documents</h3><p>Process your selected files, then type a phrase or check a claim topic.<br>Open any result to see the full page and original file.</p></div></div></section>
-<footer>Claims Power Search<span>Local document search · Check the applicable forms and editions.<br>Anonymous usage counts only — no files or searches are collected.</span></footer>
+<footer>Policy Poser Search<span>Local document search · Check the applicable forms and editions.<br>Anonymous usage counts only — no files or searches are collected.</span></footer>
 </main>
 <dialog id="preview"><div class="dialog-top"><div><h2 id="previewTitle"></h2><p id="previewMeta"></p></div><button id="closePreview" class="secondary">Close ✕</button></div><div class="preview-actions"><a id="originalLink" target="_blank" rel="noopener">Open original PDF ↗</a><a id="textLink" target="_blank" rel="noopener">Open text copy ↗</a></div><div class="preview-body"><section class="excerpt-pane"><div class="pane-toolbar"><div class="view-switch" role="group" aria-label="Text view"><button id="excerptTab" aria-pressed="true">Focused excerpt</button><button id="fullTextTab" aria-pressed="false">Full page text</button></div><button id="copyPage" class="primary">Copy excerpt</button></div><div id="clauseChoice"><label for="clausePicker">Focus on</label><select id="clausePicker"></select></div><p id="excerptNote"></p><pre id="pageText"></pre></section><div id="originalPage" class="original-page"><div class="original-heading">ORIGINAL PAGE <span>Scroll or open the PDF for a closer look</span></div><div id="originalPageChoice" class="original-page-choice" hidden><label for="originalPageSelect">Original page</label><select id="originalPageSelect"></select></div><div class="original-highlight-controls"><label><input type="checkbox" id="highlightOriginal" checked> Highlight selected text</label><span id="originalHighlightStatus" role="status" aria-live="polite"></span></div><div class="page-image-wrap"><img id="pdfImage" alt="Original PDF page"><div id="pageHighlights" aria-hidden="true"></div></div></div></div></dialog>
 <script type="module" src="/src/main.js"></script>
