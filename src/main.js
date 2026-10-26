@@ -209,6 +209,16 @@ async function readFolder(handle) {
   state.files = files;
   state.selected = new Set(files.map((f) => f.id));
   state.documents = await loadIndex(state.folderName);
+  let normalizedLegacyText = false;
+  for (const document of Object.values(state.documents)) {
+    for (const page of document.pages || []) {
+      if (page.method === 'PDF text' && page.text.includes('\\n')) {
+        page.text = page.text.replaceAll('\\n', '\n');
+        normalizedLegacyText = true;
+      }
+    }
+  }
+  if (normalizedLegacyText) await saveIndex(state.folderName, state.documents);
   renderFiles();
   resetResults();
   $('status').textContent = 'Folder loaded. Select files in step 02, then Process in step 03.';
@@ -377,10 +387,15 @@ async function copySnippet(result, text, button) {
 }
 
 async function getPreviewPdfBytes(id) {
-  const stored = await getPdfBytes(id);
-  if (stored) return stored;
   const file = state.files.find((item) => item.id === id)?.file;
-  return file ? file.arrayBuffer() : null;
+  if (file) {
+    try {
+      return await file.arrayBuffer();
+    } catch {
+      // Fall back to the cached copy if the folder handle is no longer readable.
+    }
+  }
+  return getPdfBytes(id);
 }
 
 async function openResult(result) {

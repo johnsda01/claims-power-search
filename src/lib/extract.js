@@ -75,8 +75,8 @@ function formatPdfText(items) {
         })
         .join('');
     })
-    .join('\\n')
-    .replace(/\\u00ad/g, '')
+    .join('\n')
+    .replace(/\u00ad/g, '')
     .trim();
 }
 
@@ -176,7 +176,8 @@ export async function sha256(file) {
 // Render a PDF page to an image data URL for the original-page preview.
 // Re-open a PDF.js document handle from stored bytes (for page images/words).
 export async function getDocument(bytes) {
-  return pdfjsLib.getDocument({ data: bytes, useSystemFonts: true }).promise;
+  const data = bytes instanceof ArrayBuffer ? new Uint8Array(bytes) : bytes;
+  return pdfjsLib.getDocument({ data, useSystemFonts: true }).promise;
 }
 
 export async function renderPageImage(pdfHandle, pageNumber, maxDim = 2200) {
