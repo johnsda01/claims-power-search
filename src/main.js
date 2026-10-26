@@ -21,6 +21,9 @@ import { searchDocuments } from './lib/search.js';
 
 const VERSION = '0.2.0-beta.1';
 
+const FILE_LIMIT = 3;
+const PRO_WAITLIST_URL = 'https://docs.google.com/forms/d/e/1FAIpQLScuiCXgzW1ZJ5z1UQgWRwfROONEq3lK4rJHXthMPGzAdT6KsA/viewform';
+
 const $ = (id) => document.getElementById(id);
 
 function track(name, data) {
@@ -49,6 +52,22 @@ const state = {
 function notice(message = '') {
   $('notice').hidden = !message;
   $('notice').textContent = message;
+}
+
+function showLimitNotice() {
+  const box = $('limitNotice');
+  box.innerHTML =
+    '<span class="limit-notice-text">Free beta handles up to 3 files at a time. Pro (coming soon) will support full carrier policy libraries.</span>' +
+    `<a class="primary" href="${PRO_WAITLIST_URL}" target="_blank" rel="noopener noreferrer">Join the Pro waitlist</a>`;
+  box.hidden = false;
+  box.querySelector('a').addEventListener('click', () => track('pro_waitlist_clicked'));
+  track('file_limit_hit');
+}
+
+function clearLimitNotice() {
+  const box = $('limitNotice');
+  box.hidden = true;
+  box.innerHTML = '';
 }
 
 function resetResults() {
@@ -239,8 +258,13 @@ async function readFolder(handle) {
 
 async function processSelected(force = false) {
   notice();
-  const ids = [...state.selected];
+  clearLimitNotice();
+  let ids = [...state.selected];
   if (!ids.length) return;
+  if (ids.length > FILE_LIMIT) {
+    ids = ids.slice(0, FILE_LIMIT);
+    showLimitNotice();
+  }
   state.cancel = false;
   setBusy(true);
   const useOcr = $('ocr').checked;
