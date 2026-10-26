@@ -42,6 +42,41 @@ async function decodeBytes(bytes) {
   }
 }
 
+function formatPdfText(items) {
+  const positioned = items
+    .filter((item) => item.str && item.str.trim())
+    .map((item) => ({
+      text: item.str,
+      x: item.transform?.[4] || 0,
+      y: item.transform?.[5] || 0,
+      width: item.width || 0,
+      fontSize: Math.abs(item.transform?.[3] || item.height || 10),
+    }))
+    .sort((a, b) => b.y - a.y || a.x - b.x);
+  const lines = [];
+  for (const item of positioned) {
+    const line = lines.find((candidate) => Math.abs(candidate.y - item.y) <= Math.max(2, item.fontSize * 0.35));
+    if (line) line.items.push(item);
+    else lines.push({ y: item.y, items: [item] });
+  }
+  return lines
+    .sort((a, b) => b.y - a.y)
+    .map((line) => {
+      line.items.sort((a, b) => a.x - b.x);
+      let end = null;
+      return line.items
+        .map((item) => {
+          const needsSpace = end !== null && item.x - end > Math.max(1, item.fontSize * 0.2);
+          end = item.x + item.width;
+          return (needsSpace ? ' ' : '') + item.text;
+        })
+        .join('');
+    })
+    .join('\\n')
+    .replace(/\\u00ad/g, '')
+    .trim();
+}
+
 async function extractPdf(file, progress, useOcr) {
   const buffer = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({ data: buffer, useSystemFonts: true }).promise;
@@ -52,11 +87,7 @@ async function extractPdf(file, progress, useOcr) {
       progress(`Extracting page ${i} of ${pdf.numPages}…`);
       const page = await pdf.getPage(i);
       const content = await page.getTextContent();
-      const text = content.items
-        .map((item) => item.str)
-        .join('')
-        .replace(/\u00ad/g, '')
-        .trim();
+      const text = formatPdfText(content.items);
       if (text.replace(/\W/g, '').length >= 35) {
         pages.push({ page: i, text, method: 'PDF text' });
         page.cleanup();
@@ -142,8 +173,7 @@ export async function sha256(file) {
 // Render a PDF page to an image data URL for the original-page preview.
 // Re-open a PDF.js document handle from stored bytes (for page images/words).
 export async function getDocument(bytes) {
-  const pdfjs = await import('pdfjs-dist/build/pdf.mjs');
-  return pdfjs.getDocument({ data: bytes, useSystemFonts: true }).promise;
+  return pdfjsLib.getDocument({ data: bytes, useSystemFonts: true }).promise;
 }
 
 export async function renderPageImage(pdfHandle, pageNumber, maxDim = 2200) {
