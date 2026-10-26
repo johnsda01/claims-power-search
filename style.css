@@ -47,7 +47,7 @@ h1 span{color:#637986}
 .panel{border-color:var(--line);box-shadow:0 3px 10px #182b3a12}
 .section-title .step{background:var(--primary);color:#fff;border-color:#f0bd94;box-shadow:0 0 0 4px var(--primary-soft)}
 h2,h3{color:var(--ink)}
-button{color:var(--ink)}
+button{color:var(--ink);text-align:center}
 .primary{background:var(--primary);color:#fff}.primary:hover{background:var(--primary-dark);filter:none}.primary::after{content:' →';font-weight:400}
 .secondary{background:var(--surface);color:var(--teal-dark);border-color:#b8cbc7}.secondary:hover{background:var(--teal-soft);filter:none}
 .text-button:hover{color:var(--primary-dark);filter:none}
