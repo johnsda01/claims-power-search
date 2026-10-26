@@ -15,6 +15,7 @@ import {
   getPdfBytes,
   deletePdfBytes,
   buildFileId,
+  clearAllStoredData,
 } from './lib/library.js';
 import { searchDocuments } from './lib/search.js';
 
@@ -600,6 +601,30 @@ $('highlightOriginal').addEventListener('change', () => {
 });
 $('ocr').addEventListener('change', () => savePreference('ocr', $('ocr').checked));
 $('mode').addEventListener('change', () => savePreference('searchMode', $('mode').value));
+$('clearStored').addEventListener('click', async (event) => {
+  if (state.busy) {
+    notice('Please wait for the current scan to finish before clearing stored documents.');
+    return;
+  }
+  if (!window.confirm('Remove all extracted text and cached documents stored in this browser? Your original files are not touched.')) {
+    return;
+  }
+  const button = event.currentTarget;
+  button.disabled = true;
+  try {
+    await clearAllStoredData();
+    state.documents = {};
+    state.selected = new Set();
+    resetResults();
+    if (state.files.length) renderFiles();
+    $('status').textContent = 'Stored documents cleared from this browser.';
+    notice('');
+  } catch {
+    notice('Stored documents could not be cleared.');
+  } finally {
+    button.disabled = false;
+  }
+});
 $('originalPageSelect').addEventListener('change', async (event) => {
   state.originalPreviewPage = Number(event.target.value);
   await renderComparison();

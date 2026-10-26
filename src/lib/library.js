@@ -2,7 +2,7 @@
 // extracted pages in IndexedDB. Replaces the on-disk claim-text/index.json.
 // Settings use localStorage so they persist across reloads.
 
-import { get, set, del, createStore } from 'idb-keyval';
+import { get, set, del, clear, createStore } from 'idb-keyval';
 import { sha256 } from './extract.js';
 
 const INDEX_KEY = 'cps:index:v1';
@@ -67,6 +67,13 @@ export async function saveIndex(folderName, documents) {
 
 export async function clearIndex(folderName) {
   await del(folderKey(folderName), store);
+}
+
+// Wipe every trace of the user's documents from this browser: the per-folder
+// text indexes and every cached PDF byte range.
+export async function clearAllStoredData() {
+  await clear(store);
+  await clear(pdfStore);
 }
 
 // Cache a PDF.js document handle by file id so page images and words can be

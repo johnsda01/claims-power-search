@@ -80,9 +80,23 @@ function formatPdfText(items) {
     .trim();
 }
 
+// Serve the OCR engine, its wasm core and the language data from this app's own
+// origin. Without these, tesseract.js silently falls back to a third-party CDN and
+// executes remote script in the page that holds the user's document text.
+const OCR_PATHS = {
+  workerPath: new URL('tesseract/worker.min.js', document.baseURI).href,
+  corePath: new URL('tesseract/', document.baseURI).href,
+  langPath: new URL('tesseract/lang/', document.baseURI).href,
+  gzip: true,
+};
+
 async function extractPdf(file, progress, useOcr) {
   const buffer = await file.arrayBuffer();
-  const pdf = await pdfjsLib.getDocument({ data: buffer, useSystemFonts: true }).promise;
+  const pdf = await pdfjsLib.getDocument({
+    data: buffer,
+    useSystemFonts: true,
+    isEvalSupported: false,
+  }).promise;
   const pages = [];
   let ocrWorker = null;
   try {
@@ -103,7 +117,7 @@ async function extractPdf(file, progress, useOcr) {
       }
       progress(`Page ${i}: reading with OCR…`);
       if (!ocrWorker) {
-        ocrWorker = await createWorker('eng');
+        ocrWorker = await createWorker('eng', undefined, OCR_PATHS);
       }
       const viewport0 = page.getViewport({ scale: 1 });
       const scale = Math.min(2400 / Math.max(viewport0.width, viewport0.height), 4);
@@ -177,7 +191,7 @@ export async function sha256(file) {
 // Re-open a PDF.js document handle from stored bytes (for page images/words).
 export async function getDocument(bytes) {
   const data = bytes instanceof ArrayBuffer ? new Uint8Array(bytes) : bytes;
-  return pdfjsLib.getDocument({ data, useSystemFonts: true }).promise;
+  return pdfjsLib.getDocument({ data, useSystemFonts: true, isEvalSupported: false }).promise;
 }
 
 export async function renderPageImage(pdfHandle, pageNumber, maxDim = 2200) {

@@ -4,6 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Claims Power Search</title>
+  <!-- Confine the page to its own origin: documents are read and stored locally, so
+       nothing here should ever load or send data to a third party. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob:; worker-src 'self' blob:; child-src 'self' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' data: blob: ws://127.0.0.1:* ws://localhost:*; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'">
+  <meta name="referrer" content="no-referrer">
   <link rel="stylesheet" href="/style.css">
   <meta property="og:image" content="https://bolt.new/static/og_default.png">
   <meta name="twitter:card" content="summary_large_image">
@@ -20,7 +24,8 @@
     <section class="workflow-step folder-panel">
       <div class="section-title"><span class="step">01</span><h2>Choose your policy/endorsements folder</h2><span class="subtle" id="fileCount"></span></div>
       <div class="folder-row"><label class="sr-only" for="folder">Document folder</label><input id="folder" placeholder="Pick a folder with the Browse button" disabled><button id="loadFolder" class="secondary" hidden>Load folder</button><button id="browse" class="primary">Browse…</button></div>
-      <p class="folder-help">A folder of policy PDFs, Word (.docx), or text files. Nothing is uploaded — files stay on this PC.</p>
+      <p class="folder-help">A folder of policy PDFs, Word (.docx), or text files. Files are read and stored only in this browser on this PC, and are not sent anywhere.</p>
+      <div class="folder-row folder-row-end"><button id="clearStored" class="secondary">Clear stored documents</button></div>
     </section>
 
     <section class="workflow-step files-panel">
@@ -37,7 +42,7 @@
         <p>PDF, Word, and text files are converted into a text copy this app can search. Each PDF page keeps its source reference so you can jump back to the original.</p>
       <div class="ocr-callout">
         <label class="ocr-option"><input type="checkbox" id="ocr" checked><span>Read scanned PDFs with OCR<small>Scanned pages (image-only PDFs) are read in your browser with Tesseract.js. OCR wording should be checked against the original.</small></span></label>
-        <p class="local-note">Converted text files are saved <strong>on your PC, in the same folder as the originals</strong>, never uploaded to the cloud. Each converted file is clearly labeled (for example <code>policy.searchable.txt</code> next to <code>policy.pdf</code>). If your browser does not allow writing to the folder, copies are kept in this browser instead.</p>
+        <p class="local-note">Converted text files are saved <strong>on your PC, in the same folder as the originals</strong>, and are never uploaded. Each converted file is clearly labeled (for example <code>policy.searchable.txt</code> next to <code>policy.pdf</code>). If your browser does not allow writing to the folder, copies are kept in this browser instead &mdash; use <strong>Clear stored documents</strong> in step 01 to remove them.</p>
       </div>
       <button id="process" class="primary">Convert selected files</button>
       <button id="rescan" class="primary">Re-scan selected files</button>

@@ -41,4 +41,6 @@ Search returns matching pages, including coverage, exclusions, limits, and excep
 
 ## Files stay local
 
-The app runs entirely in your browser. No documents, settings, or search data are sent to any external service. The Supabase project configured in `.env` is not used by this app — all persistence is browser-local.
+The app runs entirely in your browser. No documents, settings, or search data are sent to any external service, and the app makes no network requests at runtime: the OCR engine, its WebAssembly core and the English language data are served from this app's own origin out of `public/tesseract/` (vendored from `node_modules` by `npm run vendor:tesseract`, which `dev` and `build` run automatically). A content security policy in `index.html` confines the page to same-origin loads so a regression cannot reintroduce an outbound request silently.
+
+Extracted text and cached PDF bytes are persisted in this browser's IndexedDB. They stay on this machine, but they do persist across reloads; use **Clear stored documents** in step 01 to erase them. The Supabase project configured in `.env` is not used by this app — all persistence is browser-local.
