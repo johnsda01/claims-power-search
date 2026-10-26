@@ -16,7 +16,6 @@
 <div id="notice" role="alert" hidden></div>
 
 <section class="panel workflow-panel">
-  <div id="status" class="workflow-instructions" role="status" aria-live="polite">Choose a folder, select files, then click Process.</div>
   <div class="workflow-left">
     <section class="workflow-step folder-panel">
       <div class="section-title"><span class="step">01</span><h2>Choose your policy/endorsements folder</h2><span class="subtle" id="fileCount"></span></div>
@@ -44,6 +43,7 @@
       <button id="rescan" class="primary">Re-scan selected files</button>
       <button id="stop" class="secondary" hidden>Stop after current file</button>
       <progress id="progress" value="0" max="1" hidden></progress>
+      <div id="status" class="scan-status" role="status" aria-live="polite">Choose a folder, select files, then click Process.</div>
       <div id="issues"></div>
       <div class="save-note"><strong>Output location</strong><p id="output"></p></div>
     </div>
