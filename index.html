@@ -19,20 +19,20 @@
   <div id="status" class="workflow-instructions" role="status" aria-live="polite">Choose a folder, select files, then click Process.</div>
   <div class="workflow-left">
     <section class="workflow-step folder-panel">
-      <div class="section-title"><span class="step">01</span><h2>Choose your documents folder</h2><span class="subtle" id="fileCount"></span></div>
+      <div class="section-title"><span class="step">01</span><h2>Choose your policy/endorsements folder</h2><span class="subtle" id="fileCount"></span></div>
       <div class="folder-row"><label class="sr-only" for="folder">Document folder</label><input id="folder" placeholder="Pick a folder with the Browse button" disabled><button id="loadFolder" class="secondary" hidden>Load folder</button><button id="browse" class="secondary">Browse…</button></div>
       <p class="folder-help">A folder of policy PDFs, Word (.docx), or text files. Nothing is uploaded — files stay on this PC.</p>
     </section>
 
     <section class="workflow-step files-panel">
-      <div class="section-title"><span class="step">02</span><h2>Select individual files - or all files</h2><span class="subtle" id="selectedCount"></span></div>
+      <div class="section-title"><span class="step">02</span><h2>Select individual policies - or all of them</h2><span class="subtle" id="selectedCount"></span></div>
       <div class="file-toolbar"><label><input id="selectAll" type="checkbox"> Select all files</label><span class="subtle" id="fileTotal"></span></div>
       <div id="fileList" class="file-list"></div>
     </section>
   </div>
 
   <section class="workflow-step process-panel">
-    <div class="section-title"><span class="step">03</span><h2>Make your files searchable</h2></div>
+    <div class="section-title"><span class="step">03</span><h2>Make the policy files searchable</h2></div>
     <div class="process">
       <div class="eyebrow">CONVERT TO SEARCHABLE TEXT</div>
         <p>PDF, Word, and text files are converted into a text copy this app can search. Each PDF page keeps its source reference so you can jump back to the original.</p>
@@ -50,7 +50,7 @@
 </section>
 
 <section class="panel search-panel">
-  <div class="section-title"><span class="step">04</span><h2>Look up a claim issue</h2><button id="clearTopics" class="text-button">Clear topics</button></div>
+  <div class="section-title"><span class="step">04</span><h2>Look up policy language</h2><button id="clearTopics" class="text-button">Clear topics</button></div>
   <form id="searchForm"><div class="search-row"><label class="sr-only" for="query">What are you looking for?</label><input id="query" placeholder="What are you looking for? e.g. food loss, roof leak, matching"><button class="primary" id="search">Search policy language <span aria-hidden="true">↗</span></button></div><div class="search-options"><label for="mode">Typed search:</label><select id="mode"><option value="any">Any word</option><option value="all">All words on the page</option><option value="phrase">Exact phrase</option></select><span>Search words narrow the checked topics. Topics match any checked issue.</span></div></form>
   <div class="topic-heading"><h3>Common coverage issues</h3><span>14 starting points · <button id="commonAll" class="text-button">Select all 14</button></span></div><div id="commonTopics" class="topics"></div>
   <div class="topic-heading water-heading"><h3>Water damage types</h3><span>8 types · <button id="waterAll" class="text-button">Select all 8</button></span></div><div id="waterTopics" class="topics"></div>
