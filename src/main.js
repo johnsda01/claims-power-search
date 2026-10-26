@@ -375,6 +375,13 @@ async function copySnippet(result, text, button) {
   }
 }
 
+async function getPreviewPdfBytes(id) {
+  const stored = await getPdfBytes(id);
+  if (stored) return stored;
+  const file = state.files.find((item) => item.id === id)?.file;
+  return file ? file.arrayBuffer() : null;
+}
+
 async function openResult(result) {
   state.current = result;
   state.previewMode = 'excerpt';
@@ -423,7 +430,7 @@ async function renderComparison() {
   $('originalPageChoice').hidden = !current.pdf || pages.length < 2;
   if (current.pdf) {
     try {
-      const bytes = await getPdfBytes(current.id);
+      const bytes = await getPreviewPdfBytes(current.id);
       if (bytes) {
         const pdf = await getDocument(bytes);
         const dataUrl = await renderPageImage(pdf, state.originalPreviewPage);
@@ -453,7 +460,7 @@ async function updateOriginalHighlight(focus) {
       ? current.terms
       : (focus.pageSegments[state.originalPreviewPage] || []).map((s) => s.trim()).filter(Boolean);
   try {
-    const bytes = await getPdfBytes(current.id);
+    const bytes = await getPreviewPdfBytes(current.id);
     if (!bytes) throw new Error('PDF unavailable');
     const pdf = await getDocument(bytes);
     const ocrPage = state.documents[current.id]?.pages.find((p) => p.page === state.originalPreviewPage);
