@@ -74,4 +74,4 @@ mark{background:#ffe0a6;color:var(--ink)}
 footer{color:var(--muted);border-color:var(--line)}footer span{color:#71848d}.workflow-instructions{color:var(--ink)}.process-panel .section-title .step{background:var(--primary);border-color:#f0bd94;box-shadow:0 0 0 4px var(--primary-soft)}
 
 .folder-row-end{justify-content:flex-end;margin-top:10px}
-.folder-row-end button{flex:0 0 auto}
+.folder-row-end button{flex:0 0 auto}#clearStored{color:var(--primary-dark);border-color:#e2a879;background:var(--surface)}#clearStored:hover{background:var(--primary-soft);filter:none}
