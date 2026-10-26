@@ -79,7 +79,12 @@ export async function storePdfBytes(id, file) {
 
 export async function getPdfBytes(id) {
   const bytes = await get(pdfKey(id), pdfStore);
-  return bytes ? bytes.buffer : null;
+  if (!bytes) return null;
+  if (bytes instanceof ArrayBuffer) return bytes;
+  if (ArrayBuffer.isView(bytes)) {
+    return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
+  }
+  return null;
 }
 
 export async function deletePdfBytes(id) {

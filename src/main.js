@@ -244,6 +244,11 @@ async function processSelected() {
       let pages;
       if (reuse) {
         pages = old.pages;
+        if (old.pdf) {
+          try {
+            await storePdfBytes(file.id, file.file);
+          } catch {}
+        }
         $('status').textContent = `${file.name} · Text copy is current.`;
       } else {
         const extracted = await extract(file.file, (msg) => ($('status').textContent = `${file.name} · ${msg}`), useOcr);
