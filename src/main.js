@@ -674,3 +674,10 @@ $('originalPageSelect').addEventListener('change', async (event) => {
     notice(e.message);
   }
 })();
+
+document.querySelectorAll('.feedback-btn').forEach((el) =>
+  el.addEventListener('click', () => track('feedback_clicked'))
+);
+document.querySelectorAll('.support-btn').forEach((el) =>
+  el.addEventListener('click', () => track('patreon_clicked'))
+);
