@@ -312,6 +312,14 @@ async function processSelected() {
 
 function runSearch() {
   const ids = [...state.selected];
+  if (!ids.length) {
+    $('resultsTitle').textContent = 'Select a policy file first';
+    $('resultMeta').textContent = '0 selected files';
+    $('searchWarning').textContent = 'Select at least one policy file in step 02, then process it in step 03 before searching.';
+    $('results').innerHTML = '<div class="empty"><h3>No policy files selected</h3><p>Choose a file in step 02, process it in step 03, then search its policy language here.</p></div>';
+    $('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return;
+  }
   const query = $('query').value;
   const topicIds = [...state.topics];
   const mode = $('mode').value;
@@ -332,7 +340,7 @@ function renderResults(data) {
   $('resultsTitle').textContent = data.total ? `${data.total} matching page${data.total === 1 ? '' : 's'}` : 'No matching language found';
   $('resultMeta').textContent = `${state.selected.size} selected file(s)${data.total > 300 ? ' · Showing first 300' : ''}`;
   $('searchWarning').textContent = data.skipped.length
-    ? 'These files need processing before they can be searched: ' + data.skipped.map((id) => state.documents[id]?.name || id).join('; ')
+    ? 'These selected files need processing before they can be searched: ' + data.skipped.map((id) => state.documents[id]?.name || id).join('; ')
     : '';
   $('results').replaceChildren();
   for (const r of state.results) {
