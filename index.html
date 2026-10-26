@@ -40,7 +40,7 @@
         <label class="ocr-option"><input type="checkbox" id="ocr" checked><span>Read scanned PDFs with OCR<small>Scanned pages (image-only PDFs) are read in your browser with Tesseract.js. OCR wording should be checked against the original.</small></span></label>
         <p class="local-note">Converted text files are saved <strong>on your PC, in the same folder as the originals</strong>, never uploaded to the cloud. Each converted file is clearly labeled (for example <code>policy.searchable.txt</code> next to <code>policy.pdf</code>). If your browser does not allow writing to the folder, copies are kept in this browser instead.</p>
       </div>
-      <button id="process" class="primary">Convert selected files <span aria-hidden="true">→</span></button>
+      <button id="process" class="primary">Convert selected files</button>
       <button id="rescan" class="secondary">Re-scan selected files</button>
       <button id="stop" class="secondary" hidden>Stop after current file</button>
       <progress id="progress" value="0" max="1" hidden></progress>
@@ -52,7 +52,7 @@
 
 <section class="panel search-panel">
   <div class="section-title"><span class="step">04</span><h2>Look up policy language</h2><button id="clearTopics" class="text-button">Clear topics</button></div>
-  <form id="searchForm"><div class="search-row"><label class="sr-only" for="query">What are you looking for?</label><input id="query" placeholder="What are you looking for? e.g. food loss, roof leak, matching"><button class="primary" id="search">Search policy language <span aria-hidden="true">↗</span></button></div><div class="search-options"><label for="mode">Typed search:</label><select id="mode"><option value="any">Any word</option><option value="all">All words on the page</option><option value="phrase">Exact phrase</option></select><span>Search words narrow the checked topics. Topics match any checked issue.</span></div></form>
+  <form id="searchForm"><div class="search-row"><label class="sr-only" for="query">What are you looking for?</label><input id="query" placeholder="What are you looking for? e.g. food loss, roof leak, matching"><button class="primary" id="search">Search policy language</button></div><div class="search-options"><label for="mode">Typed search:</label><select id="mode"><option value="any">Any word</option><option value="all">All words on the page</option><option value="phrase">Exact phrase</option></select><span>Search words narrow the checked topics. Topics match any checked issue.</span></div></form>
   <div class="topic-heading"><h3>Common coverage issues</h3><span>14 starting points · <button id="commonAll" class="text-button">Select all 14</button></span></div><div id="commonTopics" class="topics"></div>
   <div class="topic-heading water-heading"><h3>Water damage types</h3><span>8 types · <button id="waterAll" class="text-button">Select all 8</button></span></div><div id="waterTopics" class="topics"></div>
   <div class="topic-heading roof-heading"><h3>Roof & wind damage types</h3><span>3 types · <button id="roofAll" class="text-button">Select all 3</button></span></div><div id="roofTopics" class="topics"></div>
