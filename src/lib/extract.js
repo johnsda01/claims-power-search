@@ -51,13 +51,16 @@ function formatPdfText(items) {
       y: item.transform?.[5] || 0,
       width: item.width || 0,
       fontSize: Math.abs(item.transform?.[3] || item.height || 10),
+      hasEOL: item.hasEOL === true,
     }))
     .sort((a, b) => b.y - a.y || a.x - b.x);
   const lines = [];
   for (const item of positioned) {
-    const line = lines.find((candidate) => Math.abs(candidate.y - item.y) <= Math.max(2, item.fontSize * 0.35));
-    if (line) line.items.push(item);
-    else lines.push({ y: item.y, items: [item] });
+    const line = lines.find((candidate) => !candidate.closed && Math.abs(candidate.y - item.y) <= Math.max(2, item.fontSize * 0.35));
+    if (line) {
+      line.items.push(item);
+      line.closed = item.hasEOL;
+    } else lines.push({ y: item.y, items: [item], closed: item.hasEOL });
   }
   return lines
     .sort((a, b) => b.y - a.y)

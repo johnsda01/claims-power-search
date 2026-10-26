@@ -58,12 +58,13 @@ function updateSelection() {
   $('selectAll').checked = n > 0 && n === state.files.length;
   $('selectAll').indeterminate = n > 0 && n < state.files.length;
   $('process').disabled = state.busy || !n;
+  $('rescan').disabled = state.busy || !n;
   $('search').disabled = state.busy || !n;
 }
 
 function setBusy(value) {
   state.busy = value;
-  for (const id of ['loadFolder', 'browse', 'folder', 'ocr', 'selectAll']) $(id).disabled = value;
+  for (const id of ['loadFolder', 'browse', 'folder', 'ocr', 'selectAll', 'process', 'rescan']) $(id).disabled = value;
   document.querySelectorAll('.file-row input').forEach((el) => (el.disabled = value));
   $('stop').hidden = !value;
   $('progress').hidden = !value;
@@ -216,7 +217,7 @@ async function readFolder(handle) {
 
 // ---- Processing ----
 
-async function processSelected() {
+async function processSelected(force = false) {
   notice();
   const ids = [...state.selected];
   if (!ids.length) return;
@@ -240,7 +241,7 @@ async function processSelected() {
         old &&
         old.sha256 === signature &&
         old.size === file.size &&
-        (!useOcr || !old.pages.some((p) => p.method === 'Needs OCR'));
+        !force && (!useOcr || !old.pages.some((p) => p.method === 'Needs OCR'));
       let pages;
       if (reuse) {
         pages = old.pages;
@@ -435,12 +436,14 @@ async function renderComparison() {
         const pdf = await getDocument(bytes);
         const dataUrl = await renderPageImage(pdf, state.originalPreviewPage);
         $('pdfImage').src = dataUrl;
+        $('originalHighlightStatus').textContent = 'Original page loaded';
         pdf.destroy();
       } else {
-        $('pdfImage').removeAttribute('src');
+        throw new Error('PDF data is unavailable. Re-scan the selected file.');
       }
-    } catch {
+    } catch (error) {
       $('pdfImage').removeAttribute('src');
+      $('originalHighlightStatus').textContent = error.message;
     }
   }
   await updateOriginalHighlight(focus);
@@ -521,6 +524,7 @@ $('selectAll').addEventListener('change', (e) => {
 });
 
 $('process').addEventListener('click', () => processSelected().catch((e) => notice(e.message)));
+$('rescan').addEventListener('click', () => processSelected(true).catch((e) => notice(e.message)));
 $('stop').addEventListener('click', () => {
   state.cancel = true;
   $('status').textContent = 'Stopping after the current file…';
