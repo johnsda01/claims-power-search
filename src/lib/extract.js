@@ -22,6 +22,7 @@ export function isSupported(name) {
   return (
     SUPPORTED.has(lower.slice(lower.lastIndexOf('.'))) &&
     !name.startsWith('~$') &&
+    !lower.endsWith('.searchable.txt') &&
     name.toLowerCase() !== 'agents.md'
   );
 }
