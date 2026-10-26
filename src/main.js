@@ -22,6 +22,13 @@ import { searchDocuments } from './lib/search.js';
 const VERSION = '0.2.0-beta.1';
 
 const $ = (id) => document.getElementById(id);
+
+function track(name, data) {
+  try {
+    window.umami?.track(name, data);
+  } catch {}
+}
+
 const state = {
   folderName: '',
   folderHandle: null,
@@ -125,6 +132,7 @@ function renderTopics() {
       input.checked = state.topics.has(id);
       input.addEventListener('change', () => {
         input.checked ? state.topics.add(id) : state.topics.delete(id);
+        if (input.checked && target === 'commonTopics') track('topic_checked', { topic: item.label });
         renderTopics();
       });
       label.append(input, document.createTextNode(item.label));
@@ -224,6 +232,7 @@ async function readFolder(handle) {
   resetResults();
   $('status').textContent = 'Folder loaded. Select files in step 02, then Process in step 03.';
   $('issues').textContent = '';
+  track('folder_selected');
 }
 
 // ---- Processing ----
@@ -323,6 +332,7 @@ async function processSelected(force = false) {
     ? `<details ${errors.length ? 'open' : ''}><summary>${errors.length} error(s) · ${warnings.length} processing note(s)</summary>${issues.map((e) => '<p>' + esc(e) + '</p>').join('')}</details>`
     : '';
   renderFiles();
+  return state.cancel ? null : ids.filter((id) => documents[id]).length;
 }
 
 // ---- Search ----
@@ -348,6 +358,7 @@ function runSearch() {
     return;
   }
   renderResults(data);
+  track('search_run', { results: data.total });
   $('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
@@ -411,6 +422,7 @@ async function openResult(result) {
   $('originalLink').hidden = true;
   await renderComparison();
   $('preview').showModal();
+  track('pdf_preview_opened');
 }
 
 async function renderComparison() {
@@ -539,8 +551,22 @@ $('selectAll').addEventListener('change', (e) => {
   resetResults();
 });
 
-$('process').addEventListener('click', () => processSelected().catch((e) => notice(e.message)));
-$('rescan').addEventListener('click', () => processSelected(true).catch((e) => notice(e.message)));
+$('process').addEventListener('click', async () => {
+  try {
+    const count = await processSelected();
+    if (count !== null && count !== undefined) track('files_converted', { count });
+  } catch (e) {
+    notice(e.message);
+  }
+});
+$('rescan').addEventListener('click', async () => {
+  try {
+    const count = await processSelected(true);
+    if (count !== null && count !== undefined) track('files_rescanned');
+  } catch (e) {
+    notice(e.message);
+  }
+});
 $('stop').addEventListener('click', () => {
   state.cancel = true;
   $('status').textContent = 'Stopping after the current file…';
@@ -618,6 +644,7 @@ $('clearStored').addEventListener('click', async (event) => {
     resetResults();
     if (state.files.length) renderFiles();
     $('status').textContent = 'Stored documents cleared from this browser.';
+    track('stored_docs_cleared');
     notice('');
   } catch {
     notice('Stored documents could not be cleared.');
