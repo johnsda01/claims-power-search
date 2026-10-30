@@ -22,7 +22,7 @@
 <body>
 <aside class="rail"><div class="brand-mark">PPS</div><span class="rail-word">POLICY<br>POWER<br>SEARCH</span><div class="rail-line"></div><span class="rail-bottom">LOCAL<br>LIBRARY</span></aside>
 <main>
-<header><div><div class="eyebrow">POLICY POWER SEARCH</div><h1>Find the language.<br><span>Keep the context.</span></h1><p>Turn your documents into searchable text, then check the original wording.</p></div><div class="app-status"><div class="app-status-top"><div class="local"><i></i> Files stay on this PC</div></div><strong id="appVersion" class="version-stamp">Version loading…</strong></div></header>
+<header><div><div class="eyebrow">POLICY POWER SEARCH</div><h1>Find the language.<br><span>Keep the context.</span></h1><p>Turn your documents into searchable text, then check the original wording.</p></div><div class="app-status"><div class="app-status-top"><div class="local"><i></i> Files stay on this PC</div></div></div></header>
 <div class="mode-banner"><button id="quickModeBtn" class="mode-btn active" type="button">Quick Start</button><button id="advancedModeBtn" class="mode-btn" type="button">Advanced Mode</button></div>
 <div id="notice" role="alert" hidden></div>
 <div id="limitNotice" class="limit-notice" role="alert" hidden></div>
@@ -46,7 +46,6 @@
     <div class="context-note"><span aria-hidden="true">ⓘ</span> Results show matching language from your document. Open any result to see the full page and original file.</div>
   </section>
 
-  <div class="beta-banner beta-banner-quick"><span class="beta-banner-text">Free beta — tell me what works and what doesn't.</span><span class="beta-banner-actions"><a class="primary support-btn" href="https://www.patreon.com/c/PolicyPowerSearch" target="_blank" rel="noopener noreferrer">Support the beta</a><a class="primary feedback-btn" href="https://docs.google.com/forms/d/e/1FAIpQLScuiCXgzW1ZJ5z1UQgWRwfROONEq3lK4rJHXthMPGzAdT6KsA/viewform" target="_blank" rel="noopener noreferrer">Give feedback</a></span></div>
 </section>
 
 <section id="advancedView" hidden>
@@ -100,6 +99,8 @@
 </section>
 
 <section id="resultsSection"><div class="results-heading"><div><div class="eyebrow">SOURCE LANGUAGE</div><h2 id="resultsTitle">Your results will appear here</h2></div><span id="resultMeta" class="subtle"></span></div><div id="searchWarning" role="status"></div><div id="results"><div class="empty"><div class="empty-icon">⌕</div><h3>Start with your policy documents</h3><p>Process your selected files, then type a phrase or check a claim topic.<br>Open any result to see the full page and original file.</p></div></div></section>
+<div class="beta-banner beta-banner-quick"><span class="beta-banner-text">Free beta — tell me what works and what doesn't.</span><span class="beta-banner-actions"><a class="primary support-btn" href="https://www.patreon.com/c/PolicyPowerSearch" target="_blank" rel="noopener noreferrer">Support the beta</a><a class="primary feedback-btn" href="https://docs.google.com/forms/d/e/1FAIpQLScuiCXgzW1ZJ5z1UQgWRwfROONEq3lK4rJHXthMPGzAdT6KsA/viewform" target="_blank" rel="noopener noreferrer">Give feedback</a></span></div>
+<strong id="appVersion" class="version-stamp">Version loading…</strong>
 <footer>Policy Power Search<span>Local document search · Check the applicable forms and editions.<br>Anonymous usage counts only — no files or searches are collected. · <a class="footer-support" href="https://www.patreon.com/c/PolicyPowerSearch" target="_blank" rel="noopener noreferrer">Support the beta</a></span></footer>
 </main>
 <dialog id="preview"><div class="dialog-top"><div><h2 id="previewTitle"></h2><p id="previewMeta"></p></div><button id="closePreview" class="secondary">Close ✕</button></div><div class="preview-actions"><a id="originalLink" target="_blank" rel="noopener">Open original PDF ↗</a><a id="textLink" target="_blank" rel="noopener">Open text copy ↗</a></div><div class="preview-body"><section class="excerpt-pane"><div class="pane-toolbar"><div class="view-switch" role="group" aria-label="Text view"><button id="excerptTab" aria-pressed="true">Focused excerpt</button><button id="fullTextTab" aria-pressed="false">Full page text</button></div><button id="copyPage" class="primary">Copy excerpt</button></div><div id="clauseChoice"><label for="clausePicker">Focus on</label><select id="clausePicker"></select></div><p id="excerptNote"></p><pre id="pageText"></pre></section><div id="originalPage" class="original-page"><div class="original-heading">ORIGINAL PAGE <span>Scroll or open the PDF for a closer look</span></div><div id="originalPageChoice" class="original-page-choice" hidden><label for="originalPageSelect">Original page</label><select id="originalPageSelect"></select></div><div class="original-highlight-controls"><label><input type="checkbox" id="highlightOriginal" checked> Highlight selected text</label><span id="originalHighlightStatus" role="status" aria-live="polite"></span></div><div class="page-image-wrap"><img id="pdfImage" alt="Original PDF page"><div id="pageHighlights" aria-hidden="true"></div></div></div></div></dialog>
