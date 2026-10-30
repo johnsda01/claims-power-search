@@ -183,7 +183,7 @@ export function focusedExcerpt(result, chosen = null) {
     chunks.push(part);
     last = node.start + lines.slice(0, count).join('\n').length;
     (pageSegments[page] ||= []).push(...part.split('\n'), '…');
-    if (node.depth >= -1 && !previewMatches(part, result.terms).length) headingByPage[page] = node.label;
+    if (!headingByPage[page] && node.depth >= -2 && !previewMatches(part, result.terms).length) headingByPage[page] = node.label;
     lastPage = page;
   }
   if (last < documentText.trimEnd().length) chunks.push('…');
