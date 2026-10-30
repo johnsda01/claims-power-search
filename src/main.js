@@ -562,7 +562,7 @@ async function openResult(result) {
   state.current = result;
   state.previewMode = 'excerpt';
   state.focusedChoice = null;
-  state.originalPreviewPage = result.page;
+  state.originalPreviewPage = null;
   $('previewTitle').textContent = result.source;
   $('previewMeta').textContent = (result.pdf ? 'PDF page ' + result.page : 'Document text; original page numbers unavailable') + ' · ' + result.method;
   $('originalPage').hidden = !result.pdf;
@@ -595,7 +595,8 @@ async function renderComparison() {
   $('clauseChoice').hidden = full || focus.options.length < 2;
   $('copyPage').textContent = full ? 'Copy full page text' : 'Copy excerpt';
   const pages = full ? [current.page] : [...new Set([...focus.pages, current.page])].sort((a, b) => a - b);
-  if (!pages.includes(state.originalPreviewPage)) state.originalPreviewPage = current.page;
+  if (state.originalPreviewPage === null) state.originalPreviewPage = full ? current.page : focus.selectedPage || current.page;
+  if (!pages.includes(state.originalPreviewPage)) state.originalPreviewPage = full ? current.page : focus.selectedPage || current.page;
   $('originalPageSelect').replaceChildren();
   for (const page of pages) {
     const option = document.createElement('option');
@@ -767,6 +768,7 @@ $('fullTextTab').addEventListener('click', () => {
 });
 $('clausePicker').addEventListener('change', (event) => {
   state.focusedChoice = Number(event.target.value);
+  state.originalPreviewPage = null;
   renderComparison();
 });
 $('highlightOriginal').addEventListener('change', () => {

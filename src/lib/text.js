@@ -170,7 +170,15 @@ export function focusedExcerpt(result, chosen = null) {
     lastPage = page;
   }
   if (last < documentText.trimEnd().length) chunks.push('…');
-  return { text: chunks.join('\n'), options, selected: selected.start, pageSegments, pages: Object.keys(pageSegments).map(Number) };
+  const selectedSpan = spans.find((span) => selected.start >= span.start && selected.start <= span.end);
+  return {
+    text: chunks.join('\n'),
+    options,
+    selected: selected.start,
+    selectedPage: selectedSpan?.page || result.page,
+    pageSegments,
+    pages: Object.keys(pageSegments).map(Number),
+  };
 }
 
 export function copyText(result, text) {
