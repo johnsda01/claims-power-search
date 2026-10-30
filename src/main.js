@@ -580,7 +580,7 @@ async function renderComparison() {
   state.focusedChoice = focus.selected;
   $('pageText').innerHTML = full
     ? highlight(current.text, current.terms)
-    : highlightHeading(focus.text, current.terms, focus.selectedHeading);
+    : highlightHeading(focus.text, current.terms, Object.values(focus.headingByPage || {}));
   $('excerptTab').setAttribute('aria-pressed', String(!full));
   $('fullTextTab').setAttribute('aria-pressed', String(full));
   $('excerptNote').textContent = full

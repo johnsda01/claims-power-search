@@ -182,9 +182,9 @@ export function focusedExcerpt(result, chosen = null) {
       part = lines.slice(0, Math.min(3, lines.length)).join('\n').trim() + '\n…';
     }
     if (part.length > 650) part = part.slice(0, 650).replace(/\s+\S*$/, '') + '\n…';
+    if (node.start > last && chunks.length && chunks[chunks.length - 1] !== '…') chunks.push('…');
     if (page !== lastPage && page !== result.page) chunks.push(`[Context from PDF page ${page}]`);
     if (page !== lastPage && page === result.page && lastPage !== null && lastPage !== result.page) chunks.push(`[PDF page ${page}]`);
-    if (node.start > last && chunks.length && chunks[chunks.length - 1] !== '…') chunks.push('…');
     chunks.push(part);
     last = node.start + lines.slice(0, count).join('\n').length;
     (pageSegments[page] ||= []).push(...part.split('\n'), '…');
