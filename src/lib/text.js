@@ -78,6 +78,21 @@ export function highlight(text, terms) {
   return output + esc(text.slice(end));
 }
 
+export function highlightHeading(text, terms, heading) {
+  const termRanges = previewMatches(text, terms);
+  const headingRanges = termRanges.length || !heading ? [] : previewMatches(text, [heading]);
+  const ranges = [...termRanges.map(([start, stop]) => [start, stop, '']), ...headingRanges.map(([start, stop]) => [start, stop, ' heading-highlight'])]
+    .sort((a, b) => a[0] - b[0] || b[1] - a[1]);
+  let output = '';
+  let end = 0;
+  for (const [start, stop, className] of ranges) {
+    if (start < end) continue;
+    output += esc(text.slice(end, start)) + `<mark class="${className.trim()}">${esc(text.slice(start, stop))}</mark>`;
+    end = stop;
+  }
+  return output + esc(text.slice(end));
+}
+
 export function excerpt(result) {
   const text = result.text;
   const match = previewMatches(text, result.terms)[0];
@@ -138,7 +153,7 @@ export function focusedExcerpt(result, chosen = null) {
   options.sort((a, b) => b.depth - a.depth || a.start - b.start);
   if (!options.length) {
     const text = excerpt(result);
-    return { text, options: [], selected: null, pageSegments: { [result.page]: text.split('\n') }, pages: [result.page] };
+    return { text, options: [], selected: null, selectedHeading: null, pageSegments: { [result.page]: text.split('\n') }, pages: [result.page] };
   }
   const selected = options.find((node) => node.start === chosen) || options[0];
   const chain = [];
@@ -175,6 +190,7 @@ export function focusedExcerpt(result, chosen = null) {
     text: chunks.join('\n'),
     options,
     selected: selected.start,
+    selectedHeading: selected.label,
     selectedPage: selectedSpan?.page || result.page,
     pageSegments,
     pages: Object.keys(pageSegments).map(Number),

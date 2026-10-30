@@ -70,7 +70,7 @@ mark{background:#ffe0a6;color:var(--ink)}
 #notice,#searchWarning{background:var(--warning-soft);color:var(--warning)}
 #pageText{background:#fbfcfb}.original-page{background:#e9efec}.original-heading,.original-page-choice,.original-highlight-controls{color:var(--teal-dark)}
 .view-switch button{color:var(--teal-dark)}.view-switch button[aria-pressed=true]{color:var(--primary)}
-.page-highlight{background:rgba(255,194,76,.45);box-shadow:0 0 0 1px rgba(200,90,10,.2)}
+.page-highlight{background:rgba(255,194,76,.45);box-shadow:0 0 0 1px rgba(200,90,10,.2)}.page-highlight.heading-highlight{background:rgba(92,156,214,.34);box-shadow:0 0 0 1px rgba(46,111,168,.28)}mark.heading-highlight{background:#b9dcf6;color:#174b70}
 footer{color:var(--muted);border-color:var(--line)}footer span{color:#71848d}.workflow-instructions{color:var(--ink)}.process-panel .section-title .step{background:var(--primary);border-color:#f0bd94;box-shadow:0 0 0 4px var(--primary-soft)}
 
 .folder-row-end{justify-content:flex-end;margin-top:10px}#folder,#query{border-color:var(--primary)}

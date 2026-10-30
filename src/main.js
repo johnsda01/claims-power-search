@@ -3,7 +3,7 @@
 // and mammoth, and stored in IndexedDB. Settings live in localStorage.
 
 import { TOPIC_CATALOG, COMMON, WATER, ROOF, STRUCTURE } from './lib/topics.js';
-import { esc, highlight, excerpt, focusedExcerpt, copyText, normalized } from './lib/text.js';
+import { esc, highlight, highlightHeading, excerpt, focusedExcerpt, copyText, normalized } from './lib/text.js';
 import { locate } from './lib/highlights.js';
 import { extract, sha256, renderPageImage, pageWords, isSupported, getDocument } from './lib/extract.js';
 import {
@@ -578,7 +578,9 @@ async function renderComparison() {
   const focus = focusedExcerpt(current, state.focusedChoice);
   const full = state.previewMode === 'full';
   state.focusedChoice = focus.selected;
-  $('pageText').innerHTML = highlight(full ? current.text : focus.text, current.terms);
+  $('pageText').innerHTML = full
+    ? highlight(current.text, current.terms)
+    : highlightHeading(focus.text, current.terms, focus.selectedHeading);
   $('excerptTab').setAttribute('aria-pressed', String(!full));
   $('fullTextTab').setAttribute('aria-pressed', String(full));
   $('excerptNote').textContent = full
@@ -648,6 +650,8 @@ async function updateOriginalHighlight(focus) {
     const { words } = await pageWords(pdf, state.originalPreviewPage, ocrWords);
     pdf.destroy();
     const result = locate(words, segments, current.terms, state.previewMode !== 'full');
+    const heading = state.previewMode !== 'full' ? focus.selectedHeading : null;
+    const headingResult = result.boxes.length || !heading ? null : locate(words, [heading]);
     if (request !== state.highlightRequest) return;
     for (const box of result.boxes) {
       const rect = document.createElement('span');
@@ -658,13 +662,24 @@ async function updateOriginalHighlight(focus) {
       rect.style.height = box.h * 100 + '%';
       $('pageHighlights').append(rect);
     }
+    for (const box of headingResult?.boxes || []) {
+      const rect = document.createElement('span');
+      rect.className = 'page-highlight heading-highlight';
+      rect.style.left = box.x * 100 + '%';
+      rect.style.top = box.y * 100 + '%';
+      rect.style.width = box.w * 100 + '%';
+      rect.style.height = box.h * 100 + '%';
+      $('pageHighlights').append(rect);
+    }
     $('originalHighlightStatus').textContent = result.boxes.length
       ? result.matched < result.requested
         ? 'Some matching words located; check the original.'
         : 'Matching words highlighted within the selected text'
-      : state.originalPreviewPage !== current.page
-        ? 'Parent context page. The matching clause is on page ' + current.page + '.'
-        : 'Could not locate the matching words reliably on the original.';
+      : headingResult?.boxes.length
+        ? 'Section heading highlighted; matching text is not on this page.'
+        : state.originalPreviewPage !== current.page
+          ? 'Parent context page. The matching clause is on page ' + current.page + '.'
+          : 'Could not locate the matching words reliably on the original.';
   } catch {
     if (request === state.highlightRequest)
       $('originalHighlightStatus').textContent = 'Highlights unavailable for this page. The original is still shown.';
