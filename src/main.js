@@ -153,11 +153,11 @@ function syncQuickFileList() {
 
 async function quickAutoProcess() {
   if (!state.files.length || state.busy) return;
-  $('quickStatus').textContent = 'Reading your file…';
+  $('quickStatus').textContent = 'Reading your files…';
   const count = await processSelected();
   if (count !== null && count !== undefined) {
     track('quick_files_converted', { count });
-    $('quickStatus').textContent = count > 0 ? `Ready to search. ${count} file(s) processed.` : 'Could not process the file. Try a different PDF, Word, or text file.';
+    $('quickStatus').textContent = count > 0 ? `Ready to search. ${count} files processed.` : 'Could not process the files. Try different PDF, Word, or text files.';
   }
   syncQuickFileList();
 }
@@ -177,7 +177,7 @@ function quickClearFile() {
 
 function quickRunSearch() {
   if (!state.selected.size) {
-    $('quickStatus').textContent = 'Add a policy file first, then search.';
+    $('quickStatus').textContent = 'Add policy files first, then search.';
     return;
   }
   const query = $('quickQuery').value;
@@ -224,8 +224,8 @@ function setBusy(value) {
 
 function renderFiles() {
   $('folder').value = state.folderName;
-  $('fileCount').textContent = `${state.files.length} supported file${state.files.length === 1 ? '' : 's'}`;
-  $('fileTotal').textContent = `${state.files.length} file${state.files.length === 1 ? '' : 's'} in folder`;
+  $('fileCount').textContent = `${state.files.length} supported files`;
+  $('fileTotal').textContent = `${state.files.length} files in folder`;
   const writeSupported = !!state.folderHandle && typeof state.folderHandle.removeEntry !== 'undefined';
   $('output').textContent = writeSupported
     ? `Converted text saved in the same folder as the originals, labeled .searchable.txt — for "${state.folderName}".`
@@ -473,8 +473,8 @@ async function processSelected(force = false) {
   await saveIndex(state.folderName, documents);
   setBusy(false);
   $('status').textContent = state.cancel
-    ? 'Stopped after the current file.'
-    : `Processing complete. ${total} file(s) converted. Ready to search in step 04.`;
+    ? 'Stopped after the current files.'
+    : `Processing complete. ${total} files converted. Ready to search in step 04.`;
   const issues = [...errors, ...warnings];
   $('issues').innerHTML = issues.length
     ? `<details ${errors.length ? 'open' : ''}><summary>${errors.length} error(s) · ${warnings.length} processing note(s)</summary>${issues.map((e) => '<p>' + esc(e) + '</p>').join('')}</details>`
@@ -488,10 +488,10 @@ async function processSelected(force = false) {
 function runSearch() {
   const ids = [...state.selected];
   if (!ids.length) {
-    $('resultsTitle').textContent = 'Select a policy file first';
+    $('resultsTitle').textContent = 'Select policy files first';
     $('resultMeta').textContent = '0 selected files';
     $('searchWarning').textContent = 'Select at least one policy file in step 02, then process it in step 03 before searching.';
-    $('results').innerHTML = '<div class="empty"><h3>No policy files selected</h3><p>Choose a file in step 02, process it in step 03, then search its policy language here.</p></div>';
+    $('results').innerHTML = '<div class="empty"><h3>No policy files selected</h3><p>Choose files in step 02, process them in step 03, then search their policy language here.</p></div>';
     $('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
     return;
   }
@@ -514,7 +514,7 @@ function renderResults(data) {
   state.results = data.results;
   for (const r of state.results) r.contextPages = data.context[r.id] || [];
   $('resultsTitle').textContent = data.total ? `${data.total} matching page${data.total === 1 ? '' : 's'}` : 'No matching language found';
-  $('resultMeta').textContent = `${state.selected.size} selected file(s)${data.total > 300 ? ' · Showing first 300' : ''}`;
+  $('resultMeta').textContent = `${state.selected.size} selected files${data.total > 300 ? ' · Showing first 300' : ''}`;
   $('searchWarning').textContent = data.skipped.length
     ? 'These selected files need processing before they can be searched: ' + data.skipped.map((id) => state.documents[id]?.name || id).join('; ')
     : '';
@@ -717,7 +717,7 @@ $('rescan').addEventListener('click', async () => {
 });
 $('stop').addEventListener('click', () => {
   state.cancel = true;
-  $('status').textContent = 'Stopping after the current file…';
+  $('status').textContent = 'Stopping after the current files…';
 });
 
 $('searchForm').addEventListener('submit', (e) => {

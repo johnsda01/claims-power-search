@@ -30,14 +30,14 @@
 
 <section id="quickView" class="quick-view">
   <section class="panel quick-upload-panel">
-    <div class="section-title"><span class="step">01</span><h2>Add your policy file</h2><span class="subtle" id="quickFileCount"></span></div>
+    <div class="section-title"><span class="step">01</span><h2>Add your policy files</h2><span class="subtle" id="quickFileCount"></span></div>
     <div id="quickDropZone" class="quick-drop-zone">
       <div class="quick-drop-icon">⬆</div>
-      <p>Drop a PDF, Word (.docx), or text file here, or click to browse.</p>
+      <p>Drop a PDF, Word (.docx), or text file here, or click to browse files.</p>
       <input type="file" id="quickFileInput" accept=".pdf,.docx,.txt,.md" multiple hidden>
     </div>
     <div id="quickFileList" class="quick-file-list"></div>
-    <div class="quick-actions"><button id="quickBrowse" class="primary">Browse…</button><button id="quickClear" class="secondary" hidden>Clear file</button></div>
+    <div class="quick-actions"><button id="quickBrowse" class="primary">Browse…</button><button id="quickClear" class="secondary" hidden>Clear files</button></div>
     <div id="quickStatus" class="scan-status" role="status" aria-live="polite"></div>
   </section>
 
@@ -77,7 +77,7 @@
       </div>
       <button id="process" class="primary">Convert selected files</button>
       <button id="rescan" class="primary">Re-scan selected files</button>
-      <button id="stop" class="secondary" hidden>Stop after current file</button>
+      <button id="stop" class="secondary" hidden>Stop after current files</button>
       <progress id="progress" value="0" max="1" hidden></progress>
       <div id="status" class="scan-status" role="status" aria-live="polite">Choose a folder, select files, then click Process.</div>
       <div id="issues"></div>
