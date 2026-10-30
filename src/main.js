@@ -577,10 +577,11 @@ async function renderComparison() {
   const current = state.current;
   const focus = focusedExcerpt(current, state.focusedChoice);
   const full = state.previewMode === 'full';
+  const previewPage = full ? current.page : state.originalPreviewPage || focus.selectedPage || current.page;
   state.focusedChoice = focus.selected;
   $('pageText').innerHTML = full
     ? highlight(current.text, current.terms)
-    : highlightHeading(focus.text, current.terms, Object.values(focus.headingByPage || {}));
+    : highlightHeading(focus.text, current.terms, focus.headingByPage?.[previewPage] || null);
   $('excerptTab').setAttribute('aria-pressed', String(!full));
   $('fullTextTab').setAttribute('aria-pressed', String(full));
   $('excerptNote').textContent = full
@@ -651,7 +652,7 @@ async function updateOriginalHighlight(focus) {
     pdf.destroy();
     const result = locate(words, segments, current.terms, state.previewMode !== 'full');
     const heading = state.previewMode !== 'full'
-      ? focus.headingByPage?.[state.originalPreviewPage] || focus.selectedHeading
+      ? focus.headingByPage?.[state.originalPreviewPage] || null
       : null;
     const headingResult = heading ? locate(words, [heading]) : null;
     if (request !== state.highlightRequest) return;
