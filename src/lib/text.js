@@ -156,13 +156,18 @@ export function focusedExcerpt(result, chosen = null) {
     return { text, options: [], selected: null, selectedHeading: null, pageSegments: { [result.page]: text.split('\n') }, pages: [result.page] };
   }
   const selected = options.find((node) => node.start === chosen) || options[0];
+  const headingByPage = {};
+  for (const node of nodes) {
+    if (node.depth >= 0 || node.start > selected.start) continue;
+    const span = spans.find((candidate) => node.start >= candidate.start && node.start <= candidate.end);
+    if (span) headingByPage[span.page] = node.label;
+  }
   const chain = [];
   for (let node = selected; node; node = node.parent) chain.unshift(node);
   let last = 0;
   let lastPage = null;
   const chunks = [];
   const pageSegments = {};
-  const headingByPage = {};
   for (const node of chain) {
     const span = spans.find((span) => node.start >= span.start && node.start <= span.end);
     const page = span ? span.page : result.page;
