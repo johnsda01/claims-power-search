@@ -104,7 +104,7 @@ footer{color:var(--muted);border-color:var(--line)}footer span{color:#71848d}.wo
 .quick-file-row .file-name{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .quick-file-row .file-detail{font-size:12px;color:var(--muted)}
 .quick-file-row .badge{flex-shrink:0}
-.quick-actions{display:flex;gap:9px;padding:0 24px 16px}
+.quick-actions{display:flex;gap:9px;padding:0 24px 16px;justify-content:center}
 .quick-actions .primary{flex:0 0 auto}
 .quick-search-panel .context-note{margin:16px 24px 0}
 #quickSearchForm{padding:0 24px}
