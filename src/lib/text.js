@@ -80,7 +80,7 @@ export function highlight(text, terms) {
 
 export function highlightHeading(text, terms, heading) {
   const termRanges = previewMatches(text, terms);
-  const headingRanges = heading ? previewMatches(text, [heading]) : [];
+  const headingRanges = heading ? previewMatches(text, Array.isArray(heading) ? heading : [heading]) : [];
   const ranges = [...termRanges.map(([start, stop]) => [start, stop, '']), ...headingRanges.map(([start, stop]) => [start, stop, ' heading-highlight'])]
     .sort((a, b) => a[0] - b[0] || b[1] - a[1]);
   let output = '';
