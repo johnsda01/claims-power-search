@@ -158,7 +158,7 @@ export function focusedExcerpt(result, chosen = null) {
   const selected = options.find((node) => node.start === chosen) || options[0];
   const headingByPage = {};
   for (const node of nodes) {
-    if (node.depth >= 0 || node.start > selected.start) continue;
+    if ((node.depth !== 0 && node.depth !== -1) || node.start > selected.start) continue;
     const span = spans.find((candidate) => node.start >= candidate.start && node.start <= candidate.end);
     if (span) headingByPage[span.page] = node.label;
   }
@@ -198,9 +198,8 @@ export function focusedExcerpt(result, chosen = null) {
     options,
     selected: selected.start,
     selectedHeading:
-      chain.find((node) => node.depth === -2)?.label ||
-      chain.find((node) => node.depth < 0)?.label ||
-      selected.label,
+      [...chain].reverse().find((node) => node.depth === 0 || node.depth === -1)?.label ||
+      null,
     headingByPage,
     selectedPage: selectedSpan?.page || result.page,
     pageSegments,
