@@ -63,19 +63,38 @@ function formatPdfText(items) {
       line.closed = item.hasEOL;
     } else lines.push({ y: item.y, items: [item], closed: item.hasEOL });
   }
-  return lines
-    .sort((a, b) => b.y - a.y)
-    .map((line) => {
-      line.items.sort((a, b) => a.x - b.x);
-      let end = null;
-      return line.items
-        .map((item) => {
-          const needsSpace = end !== null && item.x - end > Math.max(1, item.fontSize * 0.2);
-          end = item.x + item.width;
-          return (needsSpace ? ' ' : '') + item.text;
-        })
-        .join('');
-    })
+  lines.forEach((line) => {
+    line.items.sort((a, b) => a.x - b.x);
+    line.left = line.items[0].x;
+    let end = null;
+    line.text = line.items
+      .map((item) => {
+        const needsSpace = end !== null && item.x - end > Math.max(1, item.fontSize * 0.2);
+        end = item.x + item.width;
+        return (needsSpace ? ' ' : '') + item.text;
+      })
+      .join('');
+  });
+  const starts = [...new Set(lines.map((line) => line.left))].sort((a, b) => a - b);
+  let columnBreak = -1;
+  let largestGap = 0;
+  for (let i = 1; i < starts.length; i++) {
+    const gap = starts[i] - starts[i - 1];
+    if (gap > largestGap) {
+      largestGap = gap;
+      columnBreak = i;
+    }
+  }
+  const maxLeft = starts.at(-1) || 0;
+  const hasColumns = columnBreak > 0 && largestGap > Math.max(80, maxLeft * 0.3);
+  const ordered = hasColumns
+    ? [
+        ...lines.filter((line) => line.left < starts[columnBreak]).sort((a, b) => b.y - a.y || a.left - b.left),
+        ...lines.filter((line) => line.left >= starts[columnBreak]).sort((a, b) => b.y - a.y || a.left - b.left),
+      ]
+    : lines.sort((a, b) => b.y - a.y || a.left - b.left);
+  return ordered
+    .map((line) => line.text)
     .join('\n')
     .replace(/\u00ad/g, '')
     .trim();
