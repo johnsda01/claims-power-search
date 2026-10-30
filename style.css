@@ -107,4 +107,5 @@ footer{color:var(--muted);border-color:var(--line)}footer span{color:#71848d}.wo
 .quick-actions{display:flex;gap:9px;padding:0 24px 16px}
 .quick-actions .primary{flex:0 0 auto}
 .quick-search-panel .context-note{margin:16px 24px 0}
+#quickSearchForm{padding:0 24px}
 #quickStatus{padding:0 24px 18px}
