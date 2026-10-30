@@ -92,7 +92,7 @@ footer{color:var(--muted);border-color:var(--line)}footer span{color:#71848d}.wo
 .mode-btn:hover{filter:none;background:var(--primary-soft);color:var(--primary-dark)}
 .mode-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
 .mode-btn.active:hover{background:var(--primary-dark)}
-.quick-view{max-width:680px;margin:0 auto}
+.quick-view{max-width:none;margin:0}
 .quick-upload-panel{margin-bottom:22px}
 .quick-drop-zone{margin:0 24px 16px;border:2px dashed #c3ded5;border-radius:12px;padding:36px 20px;text-align:center;cursor:pointer;transition:all .15s;background:var(--surface-soft)}
 .quick-drop-zone:hover,.quick-drop-zone.dragover{border-color:var(--primary);background:var(--primary-soft)}
