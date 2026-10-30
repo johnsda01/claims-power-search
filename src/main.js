@@ -104,7 +104,7 @@ async function quickLoadFiles(fileList) {
   } else {
     clearLimitNotice();
   }
-  state.folderName = 'Quick start';
+  state.folderName = 'Quick Start';
   state.folderHandle = null;
   state.documents = await loadIndex(state.folderName);
   const files = [];
