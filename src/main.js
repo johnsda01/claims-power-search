@@ -47,6 +47,7 @@ const state = {
   focusedChoice: null,
   originalPreviewPage: null,
   highlightRequest: 0,
+  mode: 'quick',
 };
 
 function notice(message = '') {
@@ -68,6 +69,129 @@ function clearLimitNotice() {
   const box = $('limitNotice');
   box.hidden = true;
   box.innerHTML = '';
+}
+
+// ---- Mode switching (Quick start / Advanced) ----
+
+function setMode(mode) {
+  state.mode = mode;
+  const isQuick = mode === 'quick';
+  $('quickView').hidden = !isQuick;
+  $('advancedView').hidden = isQuick;
+  $('quickModeBtn').classList.toggle('active', isQuick);
+  $('advancedModeBtn').classList.toggle('active', !isQuick);
+  if (isQuick) {
+    syncQuickFileList();
+    if ($('quickQuery').value === '' && $('query').value) $('quickQuery').value = $('query').value;
+  } else {
+    if ($('query').value === '' && $('quickQuery').value) $('query').value = $('quickQuery').value;
+    renderFiles();
+  }
+  track('mode_switched', { mode });
+}
+
+// ---- Quick start: file picking, auto-process, search ----
+
+async function quickLoadFiles(fileList) {
+  const incoming = [...fileList].filter((f) => isSupported(f.name));
+  if (!incoming.length) {
+    $('quickStatus').textContent = 'No supported files. Use PDF, Word (.docx), or text files.';
+    return;
+  }
+  const limited = incoming.slice(0, FILE_LIMIT);
+  if (incoming.length > FILE_LIMIT) {
+    showLimitNotice();
+  } else {
+    clearLimitNotice();
+  }
+  state.folderName = 'Quick start';
+  state.folderHandle = null;
+  state.documents = await loadIndex(state.folderName);
+  const files = [];
+  for (const file of limited) {
+    const id = await buildFileId(state.folderName, file.name);
+    files.push({ id, name: file.name, file, size: file.size });
+  }
+  state.files = files;
+  state.selected = new Set(files.map((f) => f.id));
+  syncQuickFileList();
+  track('quick_files_added', { count: files.length });
+  await quickAutoProcess();
+}
+
+function syncQuickFileList() {
+  const list = $('quickFileList');
+  list.replaceChildren();
+  const ready = state.files.filter((f) => {
+    const doc = state.documents[f.id];
+    return doc && doc.size === f.size;
+  });
+  $('quickFileCount').textContent = state.files.length ? `${ready.length}/${state.files.length} ready` : '';
+  $('quickClear').hidden = !state.files.length;
+  for (const f of state.files) {
+    const doc = state.documents[f.id];
+    const isReady = !!doc && doc.size === f.size;
+    let status = 'Processing…';
+    let badgeClass = 'review';
+    if (isReady) {
+      if (doc.pages.some((p) => p.method === 'Needs OCR')) { status = 'Needs OCR'; badgeClass = 'review'; }
+      else if (doc.pages.some((p) => p.method === 'Browser OCR')) { status = 'OCR used'; badgeClass = 'ocr'; }
+      else { status = 'Ready'; badgeClass = 'ready'; }
+    } else if (state.busy) {
+      status = 'Processing…';
+      badgeClass = '';
+    } else {
+      status = 'Not processed';
+      badgeClass = '';
+    }
+    const row = document.createElement('div');
+    row.className = 'quick-file-row';
+    row.innerHTML = `<span class="file-type">${esc(f.name.split('.').pop().toUpperCase())}</span><span class="file-info"><div class="file-name" title="${esc(f.name)}">${esc(f.name)}</div><div class="file-detail">${f.size < 1048576 ? Math.ceil(f.size / 1024) + ' KB' : (f.size / 1048576).toFixed(1) + ' MB'}${isReady ? ' · ' + doc.pages.length + (f.name.toLowerCase().endsWith('.pdf') ? ' pages' : ' section') : ''}</div></span><span class="badge ${badgeClass}">${esc(status)}</span>`;
+    list.append(row);
+  }
+}
+
+async function quickAutoProcess() {
+  if (!state.files.length || state.busy) return;
+  $('quickStatus').textContent = 'Reading your file…';
+  const count = await processSelected();
+  if (count !== null && count !== undefined) {
+    track('quick_files_converted', { count });
+    $('quickStatus').textContent = count > 0 ? `Ready to search. ${count} file(s) processed.` : 'Could not process the file. Try a different PDF, Word, or text file.';
+  }
+  syncQuickFileList();
+}
+
+function quickClearFile() {
+  state.files = [];
+  state.selected = new Set();
+  state.documents = {};
+  syncQuickFileList();
+  $('quickStatus').textContent = '';
+  $('quickFileCount').textContent = '';
+  $('quickClear').hidden = true;
+  $('quickQuery').value = '';
+  resetResults();
+  track('quick_file_cleared');
+}
+
+function quickRunSearch() {
+  if (!state.selected.size) {
+    $('quickStatus').textContent = 'Add a policy file first, then search.';
+    return;
+  }
+  const query = $('quickQuery').value;
+  const ids = [...state.selected];
+  let data;
+  try {
+    data = searchDocuments(state.documents, ids, query, [], 'any');
+  } catch (e) {
+    notice(e.message);
+    return;
+  }
+  renderResults(data);
+  track('quick_search_run', { results: data.total });
+  $('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function resetResults() {
@@ -681,6 +805,38 @@ $('originalPageSelect').addEventListener('change', async (event) => {
   await renderComparison();
 });
 
+// ---- Quick start event wiring ----
+
+$('quickModeBtn').addEventListener('click', () => setMode('quick'));
+$('advancedModeBtn').addEventListener('click', () => setMode('advanced'));
+
+$('quickBrowse').addEventListener('click', () => $('quickFileInput').click());
+$('quickFileInput').addEventListener('change', async (e) => {
+  if (e.target.files.length) await quickLoadFiles(e.target.files);
+  e.target.value = '';
+});
+
+const dropZone = $('quickDropZone');
+dropZone.addEventListener('click', () => $('quickFileInput').click());
+dropZone.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  dropZone.classList.add('dragover');
+});
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', async (e) => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  if (e.dataTransfer.files.length) await quickLoadFiles(e.dataTransfer.files);
+});
+
+$('quickClear').addEventListener('click', quickClearFile);
+
+$('quickSearchForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  notice();
+  quickRunSearch();
+});
+
 // ---- Init ----
 
 (async () => {
@@ -693,6 +849,7 @@ $('originalPageSelect').addEventListener('change', async (event) => {
     renderTopics();
     $('fileList').innerHTML =
       '<div class="empty"><div class="empty-icon">⌕</div><h3>Pick a folder to begin</h3><p>Use Browse… in step 01 to choose a folder of policy PDFs, Word documents, or text files.<br>Files stay on this PC.</p></div>';
+    setMode('quick');
     if (warning) notice(warning);
   } catch (e) {
     notice(e.message);
