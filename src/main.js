@@ -650,7 +650,9 @@ async function updateOriginalHighlight(focus) {
     const { words } = await pageWords(pdf, state.originalPreviewPage, ocrWords);
     pdf.destroy();
     const result = locate(words, segments, current.terms, state.previewMode !== 'full');
-    const heading = state.previewMode !== 'full' ? focus.selectedHeading : null;
+    const heading = state.previewMode !== 'full'
+      ? focus.headingByPage?.[state.originalPreviewPage] || focus.selectedHeading
+      : null;
     const headingResult = heading ? locate(words, [heading]) : null;
     if (request !== state.highlightRequest) return;
     for (const box of result.boxes) {

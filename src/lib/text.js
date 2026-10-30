@@ -162,6 +162,7 @@ export function focusedExcerpt(result, chosen = null) {
   let lastPage = null;
   const chunks = [];
   const pageSegments = {};
+  const headingByPage = {};
   for (const node of chain) {
     const span = spans.find((span) => node.start >= span.start && node.start <= span.end);
     const page = span ? span.page : result.page;
@@ -182,6 +183,7 @@ export function focusedExcerpt(result, chosen = null) {
     chunks.push(part);
     last = node.start + lines.slice(0, count).join('\n').length;
     (pageSegments[page] ||= []).push(...part.split('\n'), '…');
+    if (node.depth < 0) headingByPage[page] = node.label;
     lastPage = page;
   }
   if (last < documentText.trimEnd().length) chunks.push('…');
@@ -194,6 +196,7 @@ export function focusedExcerpt(result, chosen = null) {
       chain.find((node) => node.depth === -2)?.label ||
       chain.find((node) => node.depth < 0)?.label ||
       selected.label,
+    headingByPage,
     selectedPage: selectedSpan?.page || result.page,
     pageSegments,
     pages: Object.keys(pageSegments).map(Number),
