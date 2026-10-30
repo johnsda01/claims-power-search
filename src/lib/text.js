@@ -157,11 +157,6 @@ export function focusedExcerpt(result, chosen = null) {
   }
   const selected = options.find((node) => node.start === chosen) || options[0];
   const headingByPage = {};
-  for (const node of nodes) {
-    if ((node.depth !== 0 && node.depth !== -1) || node.start > selected.start) continue;
-    const span = spans.find((candidate) => node.start >= candidate.start && node.start <= candidate.end);
-    if (span) headingByPage[span.page] = node.label;
-  }
   const chain = [];
   for (let node = selected; node; node = node.parent) chain.unshift(node);
   let last = 0;
@@ -188,7 +183,7 @@ export function focusedExcerpt(result, chosen = null) {
     chunks.push(part);
     last = node.start + lines.slice(0, count).join('\n').length;
     (pageSegments[page] ||= []).push(...part.split('\n'), '…');
-    if (node.depth < 0) headingByPage[page] = node.label;
+    if (node.depth >= -1 && !previewMatches(part, result.terms).length) headingByPage[page] = node.label;
     lastPage = page;
   }
   if (last < documentText.trimEnd().length) chunks.push('…');

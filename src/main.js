@@ -523,7 +523,7 @@ function renderResults(data) {
     const focus = focusedExcerpt(r);
     const card = document.createElement('article');
     card.className = 'result';
-    card.innerHTML = `<div class="result-top"><div><h3>${esc(r.source)}</h3><div class="result-meta">${r.pdf ? 'PDF page ' + r.page : 'Document text (no page mapping)'} · ${esc(r.method)}</div></div><button class="primary view-result">Compare & copy</button></div><div class="excerpt-label">Focused excerpt · … marks omitted wording</div><blockquote class="focused-quote">${highlight(focus.text, r.terms)}</blockquote><div class="result-bottom"><div class="tags">${esc(r.topics.join(' · '))}</div><div class="snippet-actions"><button class="primary copy-snippet">Copy excerpt</button><span class="open-note">Open original from the Compare view</span></div></div>`;
+    card.innerHTML = `<div class="result-top"><div><h3>${esc(r.source)}</h3><div class="result-meta">${r.pdf ? 'PDF page ' + r.page : 'Document text (no page mapping)'} · ${esc(r.method)}</div></div><div class="result-actions"><button class="primary view-result">Compare & copy</button><button class="primary copy-snippet">Copy excerpt</button></div></div><div class="excerpt-label">Focused excerpt · … marks omitted wording</div><blockquote class="focused-quote">${highlight(focus.text, r.terms)}</blockquote><div class="result-bottom"><div class="tags">${esc(r.topics.join(' · '))}</div><span class="open-note">Open original from the Compare view</span></div>`;
     card.querySelector('.view-result').addEventListener('click', () => openResult(r));
     card.querySelector('.copy-snippet').addEventListener('click', (event) => copySnippet(r, focus.text, event.currentTarget));
     $('results').append(card);
