@@ -882,3 +882,26 @@ document.querySelectorAll('.feedback-btn').forEach((el) =>
 document.querySelectorAll('.support-btn').forEach((el) =>
   el.addEventListener('click', () => track('patreon_clicked'))
 );
+
+// ---- Tab navigation ----
+
+const TABS = {
+  pps: 'tabPps',
+  tab2: 'tab2',
+};
+
+function selectTab(tab) {
+  const paneId = TABS[tab];
+  if (!paneId) return;
+  for (const [key, id] of Object.entries(TABS)) {
+    $(id).hidden = key !== tab;
+  }
+  document.querySelectorAll('.rail-tab').forEach((btn) => {
+    btn.classList.toggle('active', btn.dataset.tab === tab);
+  });
+  track('tab_switched', { tab });
+}
+
+document.querySelectorAll('.rail-tab').forEach((btn) => {
+  btn.addEventListener('click', () => selectTab(btn.dataset.tab));
+});

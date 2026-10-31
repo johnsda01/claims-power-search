@@ -20,8 +20,9 @@
   <meta name="twitter:image" content="https://policypowersearch.phoenixencore.com/og-image.png">
 </head>
 <body>
-<aside class="rail"><div class="brand-mark">PPS</div><span class="rail-word">POLICY<br>POWER<br>SEARCH</span><div class="rail-line"></div><span class="rail-bottom">LOCAL<br>LIBRARY</span></aside>
-<main>
+<aside class="rail"><div class="brand-mark">PPS</div><span class="rail-word">POLICY<br>POWER<br>SEARCH</span><div class="rail-line"></div><div class="rail-shell">powerClaims</div><nav class="rail-tabs"><button class="rail-tab active" data-tab="pps" type="button">Policy Power Search</button><button class="rail-tab" data-tab="tab2" type="button">Tab 2</button></nav></aside>
+<main id="appMain">
+<section id="tabPps" class="tab-pane">
 <header><div><div class="eyebrow">POLICY POWER SEARCH</div><h1>Find the language.<br><span>Keep the context.</span></h1><p>Turn your documents into searchable text, then check the original wording.</p></div><div class="app-status"><div class="app-status-top"><div class="local"><i></i> Files stay on this PC</div></div></div></header>
 <div class="mode-banner"><button id="quickModeBtn" class="mode-btn active" type="button">Quick Start</button><button id="advancedModeBtn" class="mode-btn" type="button">Advanced Mode</button></div>
 <div id="notice" role="alert" hidden></div>
@@ -102,6 +103,8 @@
 <div class="beta-banner beta-banner-quick"><span class="beta-banner-text">Free beta — tell me what works and what doesn't.</span><span class="beta-banner-actions"><a class="primary support-btn" href="https://www.patreon.com/c/PolicyPowerSearch" target="_blank" rel="noopener noreferrer">Support the beta</a><a class="primary feedback-btn" href="https://docs.google.com/forms/d/e/1FAIpQLScuiCXgzW1ZJ5z1UQgWRwfROONEq3lK4rJHXthMPGzAdT6KsA/viewform" target="_blank" rel="noopener noreferrer">Give feedback</a></span></div>
 <strong id="appVersion" class="version-stamp">Version loading…</strong>
 <footer>Policy Power Search<span>Local document search · Check the applicable forms and editions.<br>Anonymous usage counts only — no files or searches are collected. · <a class="footer-support" href="https://www.patreon.com/c/PolicyPowerSearch" target="_blank" rel="noopener noreferrer">Support the beta</a></span></footer>
+</section>
+<section id="tab2" class="tab-pane" hidden><div class="tab-placeholder"><h2>Tab 2</h2></div></section>
 </main>
 <dialog id="preview"><div class="dialog-top"><div><h2 id="previewTitle"></h2><p id="previewMeta"></p></div><button id="closePreview" class="secondary">Close ✕</button></div><div class="preview-actions"><a id="originalLink" target="_blank" rel="noopener">Open original PDF ↗</a><a id="textLink" target="_blank" rel="noopener">Open text copy ↗</a></div><div class="preview-body"><section class="excerpt-pane"><div class="pane-toolbar"><div class="view-switch" role="group" aria-label="Text view"><button id="excerptTab" aria-pressed="true">Focused excerpt</button><button id="fullTextTab" aria-pressed="false">Full page text</button></div><button id="copyPage" class="primary">Copy excerpt</button></div><div id="clauseChoice"><label for="clausePicker">Focus on</label><select id="clausePicker"></select></div><p id="excerptNote"></p><pre id="pageText"></pre></section><div id="originalPage" class="original-page"><div class="original-heading">ORIGINAL PAGE <span>Scroll or open the PDF for a closer look</span></div><div id="originalPageChoice" class="original-page-choice" hidden><label for="originalPageSelect">Original page</label><select id="originalPageSelect"></select></div><div class="original-highlight-controls"><label><input type="checkbox" id="highlightOriginal" checked> Highlight selected text</label><span id="originalHighlightStatus" role="status" aria-live="polite"></span></div><div class="page-image-wrap"><img id="pdfImage" alt="Original PDF page"><div id="pageHighlights" aria-hidden="true"></div></div></div></div></dialog>
 <script type="module" src="/src/main.js"></script>
